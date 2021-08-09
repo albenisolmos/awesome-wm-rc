@@ -22,3 +22,5 @@ Please note that this repository is not complete and has bugs
   * Todo list on clock applet
 * Widgets!!!!
 	* TEst
+	* test2
+	* TEst3
