@@ -12,16 +12,9 @@ local dir       = gears.filesystem.get_configuration_dir()
 
 awesome.connect_signal('debug::error', function(err)
 	naughty.notification {
-		title = 'test', text = tostring(err)
+		title = 'Debug::Error', text = tostring(err)
 	}
 end)
-
-function _G.notif(str)
-	naughty.notification {
-		title = 'Test',
-		text = tostring(str)
-	}
-end
 
 -- Preferences
 awful.util.shell = _G.preferences.shell
@@ -51,10 +44,8 @@ require 'global'
 -- Wallpaper
 --
 screen.connect_signal("request::wallpaper", function(s)
-	_G.notif('test')
 	if _G.preferences.wallpaper then
 		local wallpaper = _G.preferences.wallpaper
-		-- If wallpaper is a function, call it with the screen
 		if type(wallpaper) == "function" then
 			wallpaper = wallpaper(s)
 		elseif wallpaper[0] == '#' then
@@ -91,15 +82,6 @@ screen.connect_signal('request::desktop_decoration', function(s)
 	s.hotcorners = require 'display.hot-corners'(s)
 	s.topbar     = require 'display.topbar'(s)
 	s.popup      = require 'display.popup'(s)
-
-	--[[	awful.spawn('olmos-dock', {
-	callback = function(c)
-	c.x = (s.workarea.width-c.width)/2
-	c.y = s.workarea.height - c.height + 13
-	c.sticky = true
-	end
-	})
-	]]
 end)
 
 --
