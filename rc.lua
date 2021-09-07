@@ -1,4 +1,4 @@
--- MY AWESOME CONFIG IN AWESOME ==
+require('preferences')
 
 local awful     = require('awful')
 local wibox     = require('wibox')
@@ -10,44 +10,56 @@ local hotkeys   = require('awful.hotkeys_popup')
 local dpi       = beautiful.xresources.apply_dpi
 local dir       = gears.filesystem.get_configuration_dir()
 
+awesome.connect_signal('debug::error', function(err)
+	naughty.notification {
+		title = 'test', text = tostring(err)
+	}
+end)
+
+function _G.notif(str)
+	naughty.notification {
+		title = 'Test',
+		text = tostring(str)
+	}
+end
+
 -- Preferences
-awful.util.shell = '/bin/sh'
+awful.util.shell = _G.preferences.shell
+awful.mouse.snap.edge_enabled = false
+awful.mouse.snap.client_enabled = false
 -- Start Apps in the startup
 awful.spawn.once('picom')
-if beautiful.desktop_icon then
+awful.spawn.once('/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1')
+
+if _G.preferences.desktop_icon then
 	awful.spawn.once('nautilus-desktop', {
 			sticky = true,
 			skip_taskbar = true
 		})
 end
 
--- Themes
-local themes = {
-	'dark',  -- 1 --
-	'light'  -- 2 --
-}
-local theme = themes[1]
-beautiful.init(dir .. '/themes/' ..theme.. '.lua')
+beautiful.init(dir .. '/themes/' .. _G.preferences.theme .. '.lua')
 
 -- Titlebar
-require('titlebars.'..beautiful.titlebar_style)
+require('titlebars.'.. _G.preferences.titlebar_style)
 require 'notifications'
-require 'global'
 require 'keys'
 require 'rule'
+require 'global'
 
 --
 -- Wallpaper
 --
 screen.connect_signal("request::wallpaper", function(s)
-	if beautiful.wallpaper then
-		local wallpaper = beautiful.wallpaper
+	_G.notif('test')
+	if _G.preferences.wallpaper then
+		local wallpaper = _G.preferences.wallpaper
 		-- If wallpaper is a function, call it with the screen
 		if type(wallpaper) == "function" then
 			wallpaper = wallpaper(s)
-		elseif beautiful.wallpaper_type == 'solid' then
+		elseif wallpaper[0] == '#' then
 			gears.wallpaper.set(beautiful.wallpaper_color)
-		elseif beautiful.wallpaper_type == 'image' then
+		else
 			gears.wallpaper.maximized(wallpaper, s, true)
 		end
 	end
@@ -102,9 +114,7 @@ tag.connect_signal('request::default_layouts', function()
 	})
 end)
 ]]--
---
--- Error handling
---
+
 naughty.connect_signal("request::display_error", function(message, startup)
 	naughty.notification {
 		urgency = "critical",
@@ -179,10 +189,11 @@ client.connect_signal('property::active', function(c)
 		awful.spawn('xprop -remove _NET_WM_STATE_FOCUSED -id ' .. c.window)
 	end
 end)
-client.connect_signal('property::fullscreen', fullscreen_or_maximized)
-client.connect_signal('property::maximized', fullscreen_or_maximized)
 
 tag.connect_signal('property::layout', ontiled_clients)
+
+client.connect_signal('property::fullscreen', fullscreen_or_maximized)
+client.connect_signal('property::maximized', fullscreen_or_maximized)
 client.connect_signal('property::floating', ontiled_client)
 client.connect_signal('request::manage', function(c)
 	if awesome.startup and
@@ -197,8 +208,6 @@ awesome.connect_signal('hotkeys::show', function()
 end)
 
 screen.emit_signal('tag::history::update')
-awful.mouse.snap.edge_enabled = false
-awful.mouse.snap.client_enabled = false
 
 local last_coords = {x=0, y=0}
 
