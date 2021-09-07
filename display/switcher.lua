@@ -1,15 +1,29 @@
 local awful = require('awful')
 local wibox = require('wibox')
 local shape = require('gears.shape')
+local gears = require('gears')
 local beautiful = require('beautiful')
+local naughty = require('naughty')
 local dpi = beautiful.xresources.apply_dpi
-local index, past_index, max_index, index_client_focus, clients_list_children
 
-function notif(message)
-	awesome.emit_signal('notif', message)
+local clients_box = wibox.layout.fixed.horizontal()
+local first_time = true
+local index = 1, past_index, max_index
+local index_client_focus = 1 
+local clients_box_children
+local clients
+
+local function update_clients()
+	clients = awful.screen.focused().selected_tag:clients()
 end
 
+client.connect_signal('property::minimized', update_clients)
+client.connect_signal('unmanage', update_clients)
+client.connect_signal('manage', update_clients)
+screen.connect_signal('tag::history::update', update_clients)
+
 local build_widget_client = function(c)
+	if not c then error('No client provided') end
 	local client_widget = wibox.widget {
 		layout        = wibox.layout.fixed.vertical,
 		spacing       = dpi(5),
@@ -43,11 +57,6 @@ local build_widget_client = function(c)
 	local bg = client_widget:get_children_by_id('bg')[1]
 	local text = client_widget:get_children_by_id('text')[1]
 
-	if client.focus == c then
-		bg:set_bg(beautiful.bg_chips)
-		text:set_fg(beautiful.fg_soft_focus)
-	end
-
 	function client_widget:set_focus(focus)
 		if focus then
 			bg:set_bg(beautiful.bg_chips)
@@ -61,13 +70,15 @@ local build_widget_client = function(c)
 	return client_widget
 end
 
-local clients_list = wibox.layout.fixed.horizontal()
+local function swap_last_widget()
+	local index_last_client = index_client_focus-1
+	if index_last_client < 1 then index_last_client = max_index end
+	clients_box:swap(index_last_client, index_client_focus)
+end
 
-function clients_list:update()
+function clients_box:update()
 	self:reset()
-	local clients = awful.screen.focused().selected_tag:clients()
 	local i = 0
-	local testc, lastc
 
 	for _, c in pairs(clients) do
 		i = i + 1
@@ -79,13 +90,14 @@ function clients_list:update()
 			index_client_focus = i
 		end
 
-		self:add(build_widget_client(c))
 		max_index = i
-
+		self:add(build_widget_client(c))
 		::continue::
 	end
 
-	collectgarbage('collect')
+	clients_box_children = self.children
+	--collectgarbage('collect')
+	swap_last_widget()
 end
 
 return function(screen)
@@ -95,17 +107,18 @@ return function(screen)
 		visible = false,
 		bg      = beautiful.bg,
 		shape   = shape.rounded_rect,
-		widget  = wibox.container.margin(clients_list, dpi(15), dpi(15), dpi(15), 0)
+		widget  = wibox.container.margin(clients_box, dpi(15), dpi(15), dpi(15), 0)
 	}
 
-	local function update_geometry()
-		switcher.width, switcher.height = wibox.widget.base.fit_widget(
-		clients_list,
-		{ dpi = screen.dpi or beautiful.xresources.get_dpi() },
-		clients_list,
-		1000, 200)
-		switcher.x = (screen.geometry.width - switcher.width)/2
-		switcher.y = (screen.geometry.height - switcher.height)/2
+	function switcher:update_geometry()
+		self.width, self.height = wibox.widget.base.fit_widget(
+			clients_box,
+			{ dpi = screen.dpi or beautiful.xresources.get_dpi() },
+			clients_box,
+			screen.geometry.width, 200
+		)
+		self.x = (screen.geometry.width - self.width)/2
+		self.y = (screen.geometry.height - self.height)/2
 	end
 
 	awful.keygrabber {
@@ -114,6 +127,13 @@ return function(screen)
 				modifiers = {'Mod4'},
 				key       = 'Tab',
 				on_press  = function()
+					if #clients <= 1 then
+						return
+					elseif first_time then
+						first_time = false
+						clients_box_children[index]:set_focus(true)
+						return
+					end
 					past_index = index
 					index = index + 1
 
@@ -122,14 +142,15 @@ return function(screen)
 						index = 1
 					end
 
-					clients_list_children[past_index]:set_focus(false)
-					clients_list_children[index]:set_focus(true)
+					clients_box_children[past_index]:set_focus(false)
+					clients_box_children[index]:set_focus(true)
 				end
 			},
 			awful.key {
 				modifiers = {'Mod4', 'Shift'},
 				key       = 'Tab',
 				on_press  = function()
+					if #clients <= 1 then return end
 					past_index = index
 					index = index - 1
 
@@ -138,39 +159,27 @@ return function(screen)
 						index = max_index
 					end
 
-					clients_list_children[past_index]:set_focus(false)
-					clients_list_children[index]:set_focus(true)
+					clients_box_children[past_index]:set_focus(false)
+					clients_box_children[index]:set_focus(true)
 				end
 			}
-			--[[awful.key {
-				modifiers = {'Mod4'},
-				key       = 'x',
-				on_press  = function()
-					clients_list_children[index].client:kill()
-					clients_list:remove(index)
-					clients_list:update()
-					update_geometry()
-					clients_list_children[past_index]:set_focus(true)
-					index = index - 1
-				end
-			}]]
 		},
-		stop_key           = 'Mod4',
-		stop_event         = 'release',
-		start_callback     = function()
-			-- Update client list
-			clients_list:update()
-			clients_list_children = clients_list.children
-
-			update_geometry()
-
+		stop_key       = 'Mod4',
+		stop_event     = 'release',
+		start_callback = function()
+			if #clients == 0 then return end
+			clients_box:update()
+			switcher:update_geometry()
+			first_time = true 
 			switcher.visible = true
-			index = index_client_focus
 		end,
-		stop_callback      = function()
+		stop_callback = function()
+			if #clients == 0 then return end
 			switcher.visible = false
-			clients_list_children[index].client:activate { raise = true }
+			clients_box_children[index].client:activate { raise = true }
 		end,
-		export_keybindings = true,
+		export_keybindings = true
 	}
+
+	return switcher
 end

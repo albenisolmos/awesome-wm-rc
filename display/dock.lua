@@ -13,17 +13,6 @@ local separator     = require 'widget.separator'
 local insert = table.insert
 local icon_path = '/usr/share/icons/Papirus/48x48/apps/'
 local partial_show = false
-local items_layout = wibox.layout.fixed.horizontal()
-
-local function get_clients()
-	local clients_table = {}
-	local t = awful.screen.focused().selected_tag
-	local clients = t:clients()
-	for _, client in pairs(clients) do
-		table.insert(clients_table, client.name)
-	end
-	return clients_table
-end
 
 local tooltip = awful.tooltip {
 	delay_show = 1,
@@ -32,18 +21,6 @@ local tooltip = awful.tooltip {
 	preferred_alignments = 'middle',
 	shape = shape.rounded_rect
 }
-
-local function add_widget_open()
-	return wibox.widget {
-		layout = wibox.container.background,
-		bg     = '#FFFFFF90',
-		shape  = shape.circle,
-		{
-			layout  = wibox.container.margin,
-			margins = dpi(2)
-		}
-	}
-end
 
 local function add_item( icon, app, name )
 	local icon = wibox.widget.imagebox( icon, true )
@@ -79,6 +56,38 @@ local function add_item( icon, app, name )
 	}
 end
 
+local items_layout = wibox.layout.fixed.horizontal()
+items_layout:set_spacing(dpi(5))
+items_layout:add(add_item( beautiful.icon_launcher, apps.launcher ))
+items_layout:add(wibox.widget {
+		layout = wibox.container.margin,
+		top = dpi(4),
+		bottom = dpi(4),
+		{
+			widget = wibox.widget.separator,
+			orientation = 'vertical',
+			forced_width = dpi(1)
+		}
+	})
+items_layout:add(add_item( beautiful.icon_file_manager, apps.filemanager,  'Nautilus' ))
+
+local function current_clients()
+	local t = awful.screen.focused().selected_tag
+	return t:clients()
+end
+
+local function add_widget_open()
+	return wibox.widget {
+		layout = wibox.container.background,
+		bg     = '#FFFFFF90',
+		shape  = shape.circle,
+		{
+			layout  = wibox.container.margin,
+			margins = dpi(2)
+		}
+	}
+end
+
 return function(screen, autohide)
 	local normal_coord = screen.geometry.height - dpi(52)
 	local offscreen_coord = screen.geometry.height + 1
@@ -97,43 +106,30 @@ return function(screen, autohide)
 		widget  = items_layout
 	}
 
+	function dock:hide()
+		if self.y == offscreen_coord then return end
+		partial_show = false
+		self:struts({ bottom = 0 })
+		animate.move.y(self, offscreen_coord)
+	end
+
 --	dock:struts( { bottom = dpi(48) } )
 
-	items_layout:set_spacing(dpi(5))
-	items_layout:add(add_item( beautiful.icon_launcher, apps.launcher ))
-	items_layout:add(wibox.widget {
-		layout = wibox.container.margin,
-		top = dpi(4),
-		bottom = dpi(4),
-		{
-			widget = wibox.widget.separator,
-			orientation = 'vertical',
-			forced_width = dpi(1)
-		}
-	})
-	items_layout:add(add_item( beautiful.icon_file_manager, apps.filemanager,  'Nautilus' ))
-
-	local function dock_expand()
+	function dock:fit()
 		local num_items = 0
 		for _, item in pairs(items_layout.children) do
 			num_items = num_items + 43
 		end
 		num_items = num_items - 10
-		dock.width = num_items
-		dock.x = (screen.geometry.width-dock.width) / 2
+		self.width = num_items
+		self.x = (screen.geometry.width-self.width) / 2
 	end
 
-	awesome.connect_signal('dock::item', function(args)
-		items_layout:add(add_item(args.icon, args.onclick, args.name))
-		dock_expand()
-	end)
-
 	local function clients_hide_dock()
-		local t = awful.screen.focused().selected_tag
-		local clients = t:clients()
+		local clients = current_clients()
 
 		for _, client in pairs(clients) do
-			if client.maximized or client.fullscreen and not client.minimized then
+			if (client.maximized or client.fullscreen) and not client.minimized then
 				return true
 			end
 		end
@@ -145,13 +141,14 @@ return function(screen, autohide)
 		local dock_clients = {}
 		for i, item in pairs(items_layout.children) do
 			table.insert(dock_clients, { i, item.name })
+			awesome.emit_signal('notif', i .. '::' .. (item.name or 'null'))
 		end
 		return dock_clients
 	end
 
 	local function update_dock_clients()
 		local dock_clients = get_dock_clients()
-		local clients = get_clients()
+		local clients = current_clients()
 
 		for _, client in pairs(clients) do
 			for _, dc in pairs(dock_clients) do
@@ -162,19 +159,12 @@ return function(screen, autohide)
 		end
 	end
 
-	local function dock_hide()
-		if dock.y == offscreen_coord then return end
-		partial_show = false
-		dock:struts({ bottom = 0 })
-		animate.move.y(dock, offscreen_coord)
-	end
-
 	local time_hide_dock = timer {
 		timeout = 1,
 		autostart = false,
 		single_shot = true,
 		callback = function()
-			dock_hide()
+			dock:hide()
 			partial_show = false
 		end
 	}
@@ -190,29 +180,25 @@ return function(screen, autohide)
 		end
 	end)
 
-	if autohide then
-		local dock_show = function()
-			if dock.y == normal_coord then return end
+	function dock:show()
+		if dock.y == normal_coord then return end
+		partial_show = true
+		animate.move.y(dock, normal_coord)
+		if autohide then
 			dock.ontop = true
-			partial_show = true
-			animate.move.y(dock, normal_coord)
 			time_hide_dock:start()
-		end
-	else
-		local dock_show = function()
-			if dock.y == normal_coord then return end
-			partial_show = false
-			animate.move.y(dock, normal_coord)
+		else
 			dock:struts( { bottom = dpi(48) } )
 		end
-		awesome.connect_signal('dock::update', function()
-			if clients_hide_dock() then
-				dock_hide()
-			else
-				dock_show()
-			end
-		end)
 	end
+
+	awesome.connect_signal('dock::update', function()
+		if clients_hide_dock() then
+			dock:hide()
+		else
+			dock:show()
+		end
+	end)
 
 	awesome.connect_signal('dock::partial_show', function()
 		if dock.y == normal_coord then return end
@@ -225,17 +211,21 @@ return function(screen, autohide)
 	local function client_toggle_dock(c)
 		if c.maximized or c.fullscreen then
 			dock.ontop = true
-			dock_hide()
+			dock:hide()
 		else
 			if clients_hide_dock() then
 				return
 			else
 				dock.ontop = false
-				dock_show()
+				dock:show()
 			end
 		end
 	end
 
+	awesome.connect_signal('dock::item', function(args)
+		items_layout:add(add_item(args.icon, args.onclick, args.name))
+		dock:fit()
+	end)
 	client.connect_signal('property::maximized', client_toggle_dock)
 	client.connect_signal('property::fullscreen', client_toggle_dock)
 	tag.connect_signal('property::layout', function(t)
@@ -243,7 +233,7 @@ return function(screen, autohide)
 		for _, c in pairs(clients) do
 			if not c.floating then
 				dock.ontop = true
-				dock_hide()
+				dock:hide()
 				return
 			end
 		end
