@@ -5,7 +5,7 @@ local dpi       = beautiful.xresources.apply_dpi
 local ruled     = require('ruled')
 
 client.connect_signal('request::unmanage', function(c)
-	if c.modal or c.transient_for.modal then
+	if c.modal or c.transient_for then
 		awesome.emit_signal('modal::hide')
 	end
 end)
