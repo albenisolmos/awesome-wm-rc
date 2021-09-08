@@ -27,7 +27,7 @@ local function new(args)
 		--if bg.on_release then bg.on_release() end
 	end)
 	bg:connect_signal('button::release', function(_,_,_, button_id)
-		if button_id ~= 1 then return end
+		if button_id ~= 1 or not bg.callback then return end
 		bg.callback()
 	end)
 
