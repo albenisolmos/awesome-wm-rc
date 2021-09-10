@@ -26,7 +26,7 @@ return function(widget, popup_widget, on_hold)
 		on_click = function()
 			if type(popup_widget) == 'function' then
 				awesome.emit_signal('popup::hide')
-				assert(popup_widget())
+				popup_widget()
 			else
 				awesome.emit_signal('popup::open', popup_widget)
 			end
