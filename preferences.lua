@@ -1,4 +1,4 @@
-local dir       = require('gears').filesystem.get_configuration_dir()
+local dir = require('gears').filesystem.get_configuration_dir()
 
 _G.preferences  = {
 	theme = 'dark',
@@ -18,9 +18,9 @@ _G.preferences  = {
 	web_browser     = 'firefox',
 	music_player    = 'lollypop',
 	launcher        = 'rofi -show drun',
-	network_manager = 'wicd-gtk',
-	sound_manager   = 'pavucontrol',
-	package_manager = 'synaptic-pkexec',
+	manager_network = 'wicd-gtk',
+	manager_package = 'synaptic-pkexec',
+	manager_sound = 'pavucontrol',
 	shell = '/bin/sh',
 	cmd_vol_up = '',
 	cmd_vol_down = '',
