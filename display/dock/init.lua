@@ -10,55 +10,13 @@ local animate     = require 'util.animate'
 local thumbnail   = require 'util.thumbnail'
 local separator     = require 'widget.separator'
 
-local insert = table.insert
 local icon_path = '/usr/share/icons/Papirus/48x48/apps/'
 local partial_show = false
-
-local tooltip = awful.tooltip {
-	delay_show = 1,
-	align = 'top',
-	mode = 'outside',
-	preferred_alignments = 'middle',
-	shape = shape.rounded_rect
-}
-
-local function add_item( icon, app, name )
-	local icon = wibox.widget.imagebox( icon, true )
-	local item = animate.widget.scale( icon, 20 )
-	item.name = name or nil
-
-	item:buttons({awful.button({ }, 1, function()
-		awful.spawn.raise_or_spawn(app)
-	end)})
-
-	item:connect_signal('button::press', function()
-		item:scale(15)
-	end)
-
-	item:connect_signal('button::release', function()
-		item:scale(20)
-	end)
-
-	item:connect_signal('mouse::enter', function()
-		tooltip:set_text(app)
-		item:scale(0)
-	end)
-
-	item:connect_signal('mouse::leave', function()
-		item:scale(20)
-	end)
-
-	tooltip:add_to_object(item)
-
-	return wibox.widget {
-		layout = wibox.layout.fixed.vertical,
-		item,
-	}
-end
+local build_item = require 'display.dock.item'
 
 local items_layout = wibox.layout.fixed.horizontal()
 items_layout:set_spacing(dpi(5))
-items_layout:add(add_item( beautiful.icon_launcher, apps.launcher ))
+items_layout:add(build_item(beautiful.icon_launcher, apps.launcher))
 items_layout:add(wibox.widget {
 		layout = wibox.container.margin,
 		top = dpi(4),
@@ -69,7 +27,7 @@ items_layout:add(wibox.widget {
 			forced_width = dpi(1)
 		}
 	})
-items_layout:add(add_item( beautiful.icon_file_manager, apps.filemanager,  'Nautilus' ))
+items_layout:add(build_item( beautiful.icon_file_manager, apps.filemanager,  'Nautilus' ))
 
 local function current_clients()
 	local t = awful.screen.focused().selected_tag
@@ -223,7 +181,7 @@ return function(screen, autohide)
 	end
 
 	awesome.connect_signal('dock::item', function(args)
-		items_layout:add(add_item(args.icon, args.onclick, args.name))
+		items_layout:add(build_item(args.icon, args.onclick, args.name))
 		dock:fit()
 	end)
 	client.connect_signal('property::maximized', client_toggle_dock)
