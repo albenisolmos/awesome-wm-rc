@@ -2,6 +2,7 @@ local dir = require('gears').filesystem.get_configuration_dir()
 
 _G.preferences  = {
 	theme = 'dark',
+	terminal = 'terminator',
 	titlebar_style = 'windows',
 	wallpaper      = dir ..'themes/wallpaper.jpg',
 	icon_user      = dir .. 'icon-user.png',
