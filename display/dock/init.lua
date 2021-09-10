@@ -7,12 +7,10 @@ local dpi       = beautiful.xresources.apply_dpi
 
 local apps        = require "apps"
 local animate     = require 'util.animate'
-local thumbnail   = require 'util.thumbnail'
-local separator     = require 'widget.separator'
-
-local icon_path = '/usr/share/icons/Papirus/48x48/apps/'
-local partial_show = false
 local build_item = require 'display.dock.item'
+local utils = require 'display.dock.utils'
+
+local partial_show = false
 
 local items_layout = wibox.layout.fixed.horizontal()
 items_layout:set_spacing(dpi(5))
@@ -46,7 +44,7 @@ local function add_widget_open()
 	}
 end
 
-return function(screen, autohide)
+return function(screen)
 	local normal_coord = screen.geometry.height - dpi(52)
 	local offscreen_coord = screen.geometry.height + 1
 
@@ -71,8 +69,6 @@ return function(screen, autohide)
 		animate.move.y(self, offscreen_coord)
 	end
 
---	dock:struts( { bottom = dpi(48) } )
-
 	function dock:fit()
 		local num_items = 0
 		for _, item in pairs(items_layout.children) do
@@ -83,7 +79,7 @@ return function(screen, autohide)
 		self.x = (screen.geometry.width-self.width) / 2
 	end
 
-	local function clients_hide_dock()
+	local function need_hide_dock()
 		local clients = current_clients()
 
 		for _, client in pairs(clients) do
@@ -139,19 +135,19 @@ return function(screen, autohide)
 	end)
 
 	function dock:show()
-		if dock.y == normal_coord then return end
+		if self.y == normal_coord then return end
 		partial_show = true
-		animate.move.y(dock, normal_coord)
-		if autohide then
-			dock.ontop = true
+		animate.move.y(self, normal_coord)
+		if _G.preferences.dock_autohide then
+			self.ontop = true
 			time_hide_dock:start()
 		else
-			dock:struts( { bottom = dpi(48) } )
+			self:struts({ bottom = dpi(48) })
 		end
 	end
 
 	awesome.connect_signal('dock::update', function()
-		if clients_hide_dock() then
+		if need_hide_dock() then
 			dock:hide()
 		else
 			dock:show()
@@ -171,7 +167,7 @@ return function(screen, autohide)
 			dock.ontop = true
 			dock:hide()
 		else
-			if clients_hide_dock() then
+			if need_hide_dock() then
 				return
 			else
 				dock.ontop = false
@@ -198,5 +194,6 @@ return function(screen, autohide)
 	end)
 
 	update_dock_clients()
+	utils.remember_apps();
 	return dock
 end

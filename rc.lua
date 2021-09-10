@@ -77,7 +77,7 @@ screen.connect_signal('request::desktop_decoration', function(s)
 	-- Desktop Components
 	s.exitscreen = require 'display.exit-screen'(s)
 	s.switcher   = require 'display.switcher'(s)
-	s.dock       = require 'display.dock'(s, true)
+	s.dock       = require 'display.dock'(s)
 	s.dialog     = require 'display.dialog'(s)
 	s.hotcorners = require 'display.hot-corners'(s)
 	s.topbar     = require 'display.topbar'(s)
@@ -107,28 +107,15 @@ naughty.connect_signal("request::display_error", function(message, startup)
 	}
 end)
 
-
 root.buttons({ 
-		awful.button({ }, 1, function()
-			awesome.emit_signal('popup::hide')
-		end)
-	})
+	awful.button({ }, 1, function()
+		awesome.emit_signal('popup::hide')
+	end)
+})
 
 --
 -- Extras Functions
 --
-function _G.clients_maximized()
-	local t = awful.screen.focused().selected_tag
-	local clients = t:clients()
-
-	for _, client in pairs(clients) do
-		if client.maximized or client.fullscreen or not client.floating then
-			return true
-		end
-	end
-
-	return false
-end
 
 local function fullscreen_or_maximized(c)
 	if c.fullscreen or c.maximized then
