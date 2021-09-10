@@ -1,15 +1,13 @@
 local awful               = require('awful')
 local abutton             = require('awful.button')
 local wibox               = require('wibox')
-local gears               = require('gears')
 local gshape               = require('gears.shape')
 local beautiful           = require('beautiful')
 local dpi                 = beautiful.xresources.apply_dpi
 local clickable           = require 'widget.clickable'
 local applet              = require 'widget.applet'
 
-local function notif(str) awesome.emit_signal('notif', str) end
-local selected_client;
+local selected_client
 
 local options = awful.menu {
 	items = {
@@ -17,9 +15,9 @@ local options = awful.menu {
 			selected_client:kill()
 		end},
 		{ 'Maximize', function()
-				selected_client.maximized = not selected_client.maximized  
+				selected_client.maximized = not selected_client.maximized
 		end },
-		{ 'Iconify', function() 
+		{ 'Iconify', function()
 				selected_client.minimized = not selected_client.minimized
 			end},
 		{ 'On top', function()
@@ -77,7 +75,6 @@ return function(screen)
 			id = 'background_role',
 			layout = clickable,
 			on_enter = function(self)
-				notif(self.client or 'loc')
 			end,
 			create_callback = function(self, c, index)
 				self.client = c
@@ -101,16 +98,16 @@ return function(screen)
 	tasklist.visible = false
 
 	local tasklist_applet = applet(
-	wibox.widget.imagebox(beautiful.icon_list),
-	function()
-		if tasklist.visible then
-			tasklist.visible = false
-		else
-			tasklist.visible = true 
+		wibox.widget.imagebox(beautiful.icon_list),
+		function()
+			if tasklist.visible then
+				tasklist.visible = false
+			else
+				tasklist.visible = true
+			end
+			tasklist:emit_signal('widget::redraw_needed')
 		end
-		tasklist:emit_signal('widget::redraw_needed')
-	end,
-	function() end)
+	)
 
 	local tasklist_layout = wibox.widget {
 		layout = wibox.layout.align.horizontal,

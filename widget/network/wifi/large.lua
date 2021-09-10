@@ -6,7 +6,6 @@ local spawn     = require('awful.spawn')
 local dpi       = beautiful.xresources.apply_dpi
 local clickable = require('widget.clickable')
 local switch    = require('widget.switch')
-local app       = require 'apps'
 
 local networks_data = {}
 local wifi_list = wibox.layout.fixed.vertical()
@@ -82,12 +81,11 @@ function wifi_list:update()
 	self:reset()
 
 	update_data_networks()
-	for i, network in pairs(networks_data) do
+	for _, network in pairs(networks_data) do
 		self:add(build_wifi_widget(network[1]))
 	end
 
 	if #self.children == 0 then
-		self:reset()
 		self:add(widget_message)
 	end
 end

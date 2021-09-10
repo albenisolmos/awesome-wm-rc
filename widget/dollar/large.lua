@@ -2,11 +2,10 @@ local wibox     = require('wibox')
 local shape     = require('gears.shape')
 local beautiful = require('beautiful')
 local dpi       = beautiful.xresources.apply_dpi
-local clickable = require 'widget.clickable'
 local spawn     = require('awful.spawn')
 
 local value_dollar = wibox.widget.textbox('Loading')
-local last_update = wibox.widget.textbox('nose')
+local last_update = wibox.widget.textbox(' ')
 
 local small = wibox.widget {
 	layout = wibox.container.background,
@@ -29,9 +28,14 @@ local small = wibox.widget {
 }
 
 small:connect_signal('mouse::enter', function()
-	spawn.easy_async_with_shell('curl https://s3.amazonaws.com/dolartoday/data.json', function(stdout)
-		value_dollar:set_text(stdout:match('"transferencia": (.-)\n'))
-		last_update:set_text(stdout:match('"fecha_corta": (.-)\n'):gsub('"(.-)"'))
-	end)
+	spawn.easy_async_with_shell(
+		'curl https://s3.amazonaws.com/dolartoday/data.json',
+		function(stdout)
+			value_dollar:set_text(stdout:match('"transferencia": (.-)\n'))
+			last_update:set_text(stdout:match('"fecha_corta": (.-)\n')
+					:gsub('"(.-)"'))
+		end
+	)
 end)
+
 return small

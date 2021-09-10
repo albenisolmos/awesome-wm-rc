@@ -1,7 +1,4 @@
 local wibox     = require('wibox')
-local shape     = require('gears.shape')
-local button    = require('awful.button')
-local spawn     = require('awful.spawn')
 local beautiful = require('beautiful')
 local dpi       = beautiful.xresources.apply_dpi
 

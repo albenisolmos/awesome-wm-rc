@@ -1,7 +1,6 @@
 local wibox        = require('wibox')
 local spawn        = require('awful.spawn')
 local beautiful    = require('beautiful')
-local dpi          = beautiful.xresources.apply_dpi
 local app          = require 'apps'
 local widget_large = require 'widget.network.wifi.large'
 local build_applet = require 'widget.applet'

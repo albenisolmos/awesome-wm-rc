@@ -13,13 +13,11 @@ return function( icon, title )
 		{
 			widget = wibox.widget.textbox,
 			font   = beautiful.font_small,
-			text   = subtitle,
 			id     = 'id_subtitle'
 		}
 	}
 
-	local network = wibox.widget
-	{
+	local network = wibox.widget {
 		layout = wibox.layout.fixed.horizontal,
 		spacing = dpi(8),
 		{
@@ -104,18 +102,21 @@ return function( icon, title )
 					background:set_bg(beautiful.bg_highlight)
 					actived = true
 				end
+				assert(args.on_click and true or false, 'Invalid on_click paramenter')
 				args.on_click()
 			end,
 			on_hold = function()
 				awesome.emit_signal('popup::hide')
-				assert(args.on_hold())
+				assert(args.on_hold and true or false, 'Invalid on_hold paramenter')
+				args.on_hold()
 			end
 		}
 
 		background:buttons({
 			abutton({}, 1,
-			function() network_timer:start() end, 
-			function() network_timer:stop() end)
+				function() network_timer:start() end,
+				function() network_timer:stop() end
+			)
 		})
 	end
 

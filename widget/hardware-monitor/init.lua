@@ -70,8 +70,8 @@ return wibox.widget {
 			forced_height = dpi(1)
 		}
 	},
-	build_meter('CPU',        beautiful.icon_cpu,        'cpu_usage::update'),
-	build_meter('RAM',        beautiful.icon_ram,        'ram_usage::update'),
-	build_meter('Hard Drive', beautiful.icon_harddrive,  'harddrive_usage::update' ),
-	build_meter('Temperature',beautiful.icon_temperature,'temperature_level::update')
+	build_meter('CPU', beautiful.icon_cpu, 'cpu_usage::update'),
+	build_meter('RAM', beautiful.icon_ram, 'ram_usage::update'),
+	build_meter('Hard Drive', beautiful.icon_harddrive, 'harddrive_usage::update' ),
+	build_meter('Temperature', beautiful.icon_temperature, 'temperature_level::update')
 }

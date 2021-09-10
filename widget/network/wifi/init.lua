@@ -1,6 +1,5 @@
 local spawn     = require('awful.spawn')
 local beautiful = require('beautiful')
-local dpi       = beautiful.xresources.apply_dpi
 local apps      = require 'apps'
 local network   = require 'widget.network'
 

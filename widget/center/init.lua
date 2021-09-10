@@ -4,8 +4,20 @@ local dpi       = beautiful.xresources.apply_dpi
 local apps      = require 'apps'
 local slider    = require 'widget.slider'
 
-local sound_slider      = slider('Sound', beautiful.icon_sound_soft, beautiful.icon_sound, require 'widget.sound.slider', apps.sound_manager)
-local brightness_slider = slider('Brightness', beautiful.icon_brightness_soft, beautiful.icon_brightness, require 'widget.brightness.slider')
+local sound_slider = slider(
+	'Sound',
+	beautiful.icon_sound_soft,
+	beautiful.icon_sound,
+	require 'widget.sound.slider',
+	apps.sound_manager
+)
+
+local brightness_slider = slider(
+	'Brightness',
+	beautiful.icon_brightness_soft,
+	beautiful.icon_brightness,
+	require 'widget.brightness.slider'
+)
 
 local center = wibox.widget {
 	min_cols_size = dpi(5),

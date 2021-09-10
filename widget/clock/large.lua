@@ -2,15 +2,15 @@ local wibox     = require('wibox')
 local shape     = require('gears.shape')
 local beautiful = require('beautiful')
 local dpi       = beautiful.xresources.apply_dpi
-local todo      = require 'widget.todo'
 
 local styles = {}
 
 local function rounded_shape(size, partial)
 	if partial then
 		return function(cr, width, height)
-			shape.partially_rounded_rect
-			(cr, width, height, false, true, false, true, 5)
+			shape.partially_rounded_rect(
+				cr, width, height, false, true, false, true, 5
+			)
 		end
 	else
 		return function(cr, width, height)
@@ -48,8 +48,8 @@ styles.weekday = {
 	shape    = rounded_shape(5)
 }
 
-local function decorate_cell(widget, flag, date)
-	if flag=='monthheader' and not styles.monthheader then
+local function decorate_cell(widget, flag)
+	if flag == 'monthheader' and not styles.monthheader then
 		flag = 'header'
 	end
 
@@ -59,9 +59,6 @@ local function decorate_cell(widget, flag, date)
 		widget:set_markup(props.markup(widget:get_text()))
 	end
 
-	-- Change bg color for weekends
-	local d = {year=date.year, month=(date.month or 1), day=(date.day or 1)}
-	local weekday = tonumber(os.date('%w', os.time(d)))
 	local default_bg = '00000000'
 
 	local ret = wibox.widget {
@@ -88,6 +85,5 @@ return wibox.widget {
 		font     = 'Ubuntu 12',
 		fn_embed = decorate_cell,
 		widget   = wibox.widget.calendar.month
-	},
-	todo
+	}
 }

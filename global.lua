@@ -9,7 +9,6 @@ awesome.connect_signal('sound::level', function(level)
 	false)
 end)
 
--- Update wifi
 local wifi_updater = gtimer {
 	timeout = 5,
 	autostart = false,
@@ -47,6 +46,51 @@ screen.connect_signal('tag::history::update', function()
 	awesome.emit_signal('dock::update')
 end)
 
+local update_hardwareMonitor = gtimer {
+	timeout = 5,
+	autostart = false,
+	callback = function()
+		-- Update cpu usage
+		spawn.easy_async([[bash -c "awk '{u=$2+$4; t=$2+$4+$5; if (NR==1){u1=u; t1=t;} else print ($2+$4-u1) * 100 / (t-t1); }' <(grep 'cpu ' /proc/stat) <(sleep 1;grep 'cpu ' /proc/stat)"]],
+		function(stdout)
+			local value = math.floor(tonumber(stdout) + 0.5)
+			awesome.emit_signal('cpu_usage::update', value)
+			collectgarbage('collect')
+		end)
+
+		-- Update cpu temperature
+		spawn.easy_async('bash -c sensors',
+			function(stdout)
+				local core0, core1, value
+				core0 = stdout:match('Core 0: (.-)\n'):sub(8,11)
+				core1 = stdout:match('Core 1: (.-)\n'):sub(8,11)
+				value = (core0 + core1) / 2
+				awesome.emit_signal('temperature_level::update', value)
+				collectgarbage('collect')
+			end
+		)
+
+		-- Update harddrive usage
+		spawn.easy_async([[bash -c "df -h /home|grep '^/' | awk '{print $5}'"]],
+			function(stdout)
+				local value = tonumber(string.sub(stdout, 1, 2))
+				awesome.emit_signal('harddrive_usage::update', value)
+				collectgarbage('collect')
+			end
+		)
+
+		-- Update ram usage
+		spawn.easy_async('bash -c free | grep -z Mem.*Swap.*',
+			function(stdout)
+				local total, used, free, shared, buff_cache, available, total_swap, used_swap, free_swap = stdout:match('(%d+)%s*(%d+)%s*(%d+)%s*(%d+)%s*(%d+)%s*(%d+)%s*Swap:%s*(%d+)%s*(%d+)%s*(%d+)')
+				value = used / total * 100
+				awesome.emit_signal('ram_usage::update', value)
+				collectgarbage('collect')
+			end
+		)
+	end
+}
+
 awesome.connect_signal('popup::visible', function(visible)
 	if visible then
 		update_hardwareMonitor:start()
@@ -56,60 +100,13 @@ awesome.connect_signal('popup::visible', function(visible)
 	end
 end)
 
-update_hardwareMonitor = gtimer {
-	timeout = 5,
-	autostart = false,
-	callback = function()
-		-- Update cpu usage
-		spawn.easy_async([[bash -c "awk '{u=$2+$4; t=$2+$4+$5; if (NR==1){u1=u; t1=t;} else print ($2+$4-u1) * 100 / (t-t1); }' <(grep 'cpu ' /proc/stat) <(sleep 1;grep 'cpu ' /proc/stat)"]],
-		function(stdout)
-			local percent, value
-			percent = tonumber(stdout)
-			value = math.floor(stdout + 0.5)
-			awesome.emit_signal('cpu_usage::update', value)
-			collectgarbage('collect')
-		end)
-
-		-- Update cpu temperature
-		spawn.easy_async('bash -c sensors',
-		function(stdout)
-			local core0, core1, value
-			core0 = stdout:match('Core 0: (.-)\n'):sub(8,11)
-			core1 = stdout:match('Core 1: (.-)\n'):sub(8,11)
-			value = (core0 + core1) / 2
-			awesome.emit_signal('temperature_level::update', value)
-			collectgarbage('collect')
-		end)
-
-		-- Update harddrive usage
-		spawn.easy_async([[bash -c "df -h /home|grep '^/' | awk '{print $5}'"]],
-		function(stdout)
-			local value = tonumber(string.sub(stdout, 1, 2))
-			awesome.emit_signal('harddrive_usage::update', value)
-			collectgarbage('collect')
-		end)
-
-		-- Update ram usage
-		spawn.easy_async('bash -c free | grep -z Mem.*Swap.*',
-		function(stdout)
-			local total, used, free, shared, buff_cache, available, total_swap, used_swap, free_swap = stdout:match('(%d+)%s*(%d+)%s*(%d+)%s*(%d+)%s*(%d+)%s*(%d+)%s*Swap:%s*(%d+)%s*(%d+)%s*(%d+)')
-			value = used / total * 100
-			awesome.emit_signal('ram_usage::update', value)
-			collectgarbage('collect')
-		end)
-	end
-}
-
-awesome.connect_signal('notif', function(notif)
+awesome.connect_signal('print', function(notif)
 	naughty.notification {
 		title = 'Test',
 		text = tostring(notif)
 	}
 end)
 
-_G.notif = function(str)
-	naughty.notification {
-		title = 'Test',
-		text = tostring(notif)
-	}
+function _G.print(msg)
+	awesome.emit_signal('print', msg)
 end
