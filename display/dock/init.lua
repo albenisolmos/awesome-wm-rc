@@ -70,10 +70,7 @@ return function(screen)
 	end
 
 	function dock:fit()
-		local num_items = 0
-		for _, item in pairs(items_layout.children) do
-			num_items = num_items + 43
-		end
+		local num_items = 43 * #items_layout.children
 		num_items = num_items - 10
 		self.width = num_items
 		self.x = (screen.geometry.width-self.width) / 2
