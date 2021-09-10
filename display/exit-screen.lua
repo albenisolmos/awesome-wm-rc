@@ -39,8 +39,7 @@ local function add_button(icon, name, action)
 end
 
 return function(screen)
-	local exitScreen = wibox
-	{
+	local exitScreen = wibox {
 		screen  = screen,
 		type    = 'normal',
 		position= 'center',
@@ -106,17 +105,19 @@ return function(screen)
 	end)
 
 	exitScreen:get_children_by_id('area_exit_screen')[1]:connect_signal(
-	'button::release', function(self)
+	'button::release', function()
 		exitScreen.visible = false
 	end)
 
 	awful.spawn.easy_async('bash -c whoami', function(stdout)
 		local user = stdout:gsub('^%s*(.-)%s*$', '%1')
 
-		exitScreen:get_children_by_id('user')[1]:set_markup
-		('<span font="Ubuntu 20">' .. user .. '</span>')
+		exitScreen:get_children_by_id('user')[1]:set_markup(
+			'<span font="Ubuntu 20">' .. user .. '</span>'
+		)
 
-		exitScreen:get_children_by_id('message')[1]:set_markup
-		('<span font="Ubuntu 30">Choose wisely, ' .. user .. ' !</span>')
+		exitScreen:get_children_by_id('message')[1]:set_markup(
+			'<span font="Ubuntu 30">Choose wisely, ' .. user .. ' !</span>'
+		)
 	end)
 end

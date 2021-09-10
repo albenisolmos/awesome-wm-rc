@@ -4,12 +4,6 @@ local dpi = require('beautiful').xresources.apply_dpi
 
 awful.titlebar.enable_tooltip = false
 
-local function on_drag_client_to_edge()
-	if mouse.coords.y == screen.focused.geometry.y then
-		notif('TOP')
-	end
-end
-
 client.connect_signal('request::titlebars', function(c)
 	local titlebar_buttons = {
 		awful.button({ }, 1, function()
