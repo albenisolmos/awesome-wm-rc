@@ -33,9 +33,9 @@ return function(widget, popup_widget, on_hold)
 			end
 		end,
 		on_hold = function()
-			if not on_hold then return end
 			applet:set_bg(beautiful.transparent)
 			awesome.emit_signal('popup::hide')
+			if not on_hold then return end
 			on_hold()
 		end
 	}
