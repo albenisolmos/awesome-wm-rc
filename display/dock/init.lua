@@ -13,6 +13,11 @@ local utils = require 'display.dock.utils'
 local partial_show = false
 
 local clients_layout = wibox.layout.fixed.horizontal()
+function clients_layout:add_client(c)
+	self.add(build_item(c.icon, c.name))
+end
+
+
 local items_layout = wibox.layout.fixed.horizontal()
 items_layout:set_spacing(dpi(5))
 items_layout:add(build_item(beautiful.icon_launcher, apps.launcher))
