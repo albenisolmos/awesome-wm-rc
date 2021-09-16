@@ -33,18 +33,6 @@ local function current_clients()
 	return t:clients()
 end
 
-local function add_widget_open()
-	return wibox.widget {
-		layout = wibox.container.background,
-		bg     = '#FFFFFF90',
-		shape  = shape.circle,
-		{
-			layout  = wibox.container.margin,
-			margins = dpi(2)
-		}
-	}
-end
-
 return function(screen)
 	local normal_coord = screen.geometry.height - dpi(52)
 	local offscreen_coord = screen.geometry.height + 1
