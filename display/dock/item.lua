@@ -11,13 +11,12 @@ local tooltip = awful.tooltip {
 	shape = shape.rounded_rect
 }
 
-return function(icon, app, name)
+return function(icon, name, exec)
 	local img = wibox.widget.imagebox(icon, true)
 	local item = animate.widget.scale(img, 20)
-	item.name = name or nil
 
 	item:buttons({awful.button({ }, 1, function()
-		awful.spawn.raise_or_spawn(app)
+		awful.spawn.raise_or_spawn(exec)
 	end)})
 
 	item:connect_signal('button::press', function()
@@ -29,7 +28,7 @@ return function(icon, app, name)
 	end)
 
 	item:connect_signal('mouse::enter', function()
-		tooltip:set_text(app)
+		tooltip:set_text(name or exec)
 		item:scale(0)
 	end)
 
