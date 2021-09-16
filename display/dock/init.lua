@@ -12,6 +12,7 @@ local utils = require 'display.dock.utils'
 
 local partial_show = false
 
+local clients_layout = wibox.layout.fixed.horizontal()
 local items_layout = wibox.layout.fixed.horizontal()
 items_layout:set_spacing(dpi(5))
 items_layout:add(build_item(beautiful.icon_launcher, apps.launcher))
@@ -79,35 +80,15 @@ return function(screen)
 	local function need_hide_dock()
 		local clients = current_clients()
 
-		for _, client in pairs(clients) do
-			if (client.maximized or client.fullscreen) and not client.minimized then
-				return true
+		if #clients > 0 then
+			for _, client in pairs(clients) do
+				if (client.maximized or client.fullscreen) and not client.minimized then
+					return true
+				end
 			end
 		end
 
 		return false
-	end
-
-	local function get_dock_clients()
-		local dock_clients = {}
-		for i, item in pairs(items_layout.children) do
-			table.insert(dock_clients, { i, item.name })
-			awesome.emit_signal('notif', i .. '::' .. (item.name or 'null'))
-		end
-		return dock_clients
-	end
-
-	local function update_dock_clients()
-		local dock_clients = get_dock_clients()
-		local clients = current_clients()
-
-		for _, client in pairs(clients) do
-			for _, dc in pairs(dock_clients) do
-				if client == dc[2] then
-					items_layout.children[dc[1]]:add(add_widget_open())
-				end
-			end
-		end
 	end
 
 	local time_hide_dock = timer {
@@ -190,7 +171,6 @@ return function(screen)
 		end
 	end)
 
-	update_dock_clients()
 	utils.remember_apps();
 	return dock
 end
