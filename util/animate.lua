@@ -85,12 +85,12 @@ end
 
 function animate.resize.width(obj, width)
 	if obj.width > width then
-		for _, width do
+		for i=0, width do
 			if obj.width == width then return end
 			obj.width = obj.width - 1
 		end
 	elseif obj.width < width then
-		for _, width do
+		for i=0, width do
 			if obj.width == width then return end
 			obj.width = obj.width + 1
 		end
