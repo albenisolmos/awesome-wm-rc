@@ -1,9 +1,5 @@
 local base = require('wibox.widget.base')
-local gtimer = require('gears.timer')
-local naughty = require('naughty')
-local spawn = require('awful.spawn')
 local lgi = require('lgi')
-local Glib = lgi.GLib
 
 local animate = {
 	move = {},
@@ -12,7 +8,7 @@ local animate = {
 }
 
 function animate.widget.scale(widget, scale)
-	local space_avaliable, new_scale
+	local space_avaliable
 	local ret = base.make_widget()
 
 	local subtract_percent = function(value, percent)
@@ -89,12 +85,12 @@ end
 
 function animate.resize.width(obj, width)
 	if obj.width > width then
-		for i=0, width do
+		for _, width do
 			if obj.width == width then return end
 			obj.width = obj.width - 1
 		end
 	elseif obj.width < width then
-		for i=0, width do
+		for _, width do
 			if obj.width == width then return end
 			obj.width = obj.width + 1
 		end
