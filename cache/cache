@@ -45,6 +45,6 @@ killall terminator
 firefox bancaribe
 killall exitscreen
 killall firefox
-killall nautilus
 killall lollypop
 killall smplayer
+killall nautilus
