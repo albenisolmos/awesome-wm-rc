@@ -11,16 +11,15 @@ local build_item = require 'display.dock.item'
 local utils = require 'display.dock.utils'
 
 local partial_show = false
-
+--[[
 local clients_layout = wibox.layout.fixed.horizontal()
 function clients_layout:add_client(c)
-	self.add(build_item(c.icon, c.name))
+	self.add(build_item(c.icon, nil, c.name))
 end
-
-
+]]
 local items_layout = wibox.layout.fixed.horizontal()
 items_layout:set_spacing(dpi(5))
-items_layout:add(build_item(beautiful.icon_launcher, apps.launcher))
+items_layout:add(build_item(beautiful.icon_launcher, nil, apps.launcher))
 items_layout:add(wibox.widget {
 		layout = wibox.container.margin,
 		top = dpi(4),
@@ -31,7 +30,7 @@ items_layout:add(wibox.widget {
 			forced_width = dpi(1)
 		}
 	})
-items_layout:add(build_item( beautiful.icon_file_manager, apps.filemanager,  'Nautilus' ))
+items_layout:add(build_item(beautiful.icon_file_manager, nil, apps.filemanager))
 
 local function current_clients()
 	local t = awful.screen.focused().selected_tag
@@ -148,7 +147,7 @@ return function(screen)
 	end
 
 	awesome.connect_signal('dock::item', function(args)
-		items_layout:add(build_item(args.icon, args.onclick, args.name))
+		items_layout:add(build_item(args.icon, args.name, args.onclick))
 		dock:fit()
 	end)
 	client.connect_signal('property::maximized', client_toggle_dock)
