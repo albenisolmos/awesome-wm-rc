@@ -23,6 +23,7 @@ return function(widget, popup_widget, on_hold)
 	local spawn = multispawn {
 		timeout = 3,
 		on_click = function()
+			if not popup_widget then return end
 			if type(popup_widget) == 'function' then
 				awesome.emit_signal('popup::hide')
 				popup_widget()
