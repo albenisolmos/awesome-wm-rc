@@ -41,10 +41,10 @@ gpicview
 killalll firefox
 killall inkscape
 killall termiantor
-killall terminator
 firefox bancaribe
 killall exitscreen
 killall firefox
 killall lollypop
 killall smplayer
 killall nautilus
+killall terminator
