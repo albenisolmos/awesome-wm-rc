@@ -84,19 +84,6 @@ screen.connect_signal('request::desktop_decoration', function(s)
 	s.popup      = require 'display.popup'(s)
 end)
 
---
--- Layouts
---[[
-tag.connect_signal('request::default_layouts', function()
-	awful.layout.append_default_layouts({
-		awful.layout.suit.floating,
-		awful.layout.suit.tile.left,
-		awful.layout.suit.tile.bottom,
-		awful.layout.suit.spiral,
-	})
-end)
-]]--
-
 naughty.connect_signal("request::display_error", function(message, startup)
 	naughty.notification {
 		urgency = "critical",

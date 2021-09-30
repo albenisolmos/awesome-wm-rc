@@ -43,8 +43,8 @@ killall inkscape
 killall termiantor
 firefox bancaribe
 killall exitscreen
-killall firefox
 killall lollypop
 killall smplayer
 killall nautilus
 killall terminator
+killall firefox
