@@ -38,7 +38,7 @@ return function(screen)
 	topbar:struts( { top = topbar.height } )
 
 	function topbar:hide()
-		partial_show = false 
+		partial_show = false
 		topbar:struts( { top = 0 } )
 		self.y = -self.height
 	end
@@ -65,7 +65,7 @@ return function(screen)
 	end)
 
 	function topbar:show()
-		partial_show = false 
+		partial_show = false
 		self:struts( { top = topbar.height } )
 		self.ontop = false
 		self.y = 0
@@ -76,14 +76,6 @@ return function(screen)
 		self.ontop = true
 		self.y = 0
 		time_to_hide_topbar:start()
-	end
-
-	local function check_status_client(c)
-		if c.maximized or not c.floating and not c.minimized then
-			topbar.bg = beautiful.titlebar_bg
-		elseif c.fullscreen then
-			topbar:hide()
-		end
 	end
 
 	local function clients_change_topbar()
