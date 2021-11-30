@@ -4,6 +4,27 @@ local beautiful = require('beautiful')
 local dpi       = beautiful.xresources.apply_dpi
 local ruled     = require('ruled')
 
+local clientbuttons = awful.util.table.join(
+	awful.button({ }, 1, function(c)
+		client.focus = c
+		c:raise()
+		awesome.emit_signal('menu::hide')
+		awesome.emit_signal('popup::hide')
+	end),
+	awful.button({'Mod4'}, 1, function(c)
+		c:activate {
+			context = 'titlebar',
+			action = 'mouse_move'
+		}
+	end),
+	awful.button({'Mod4'}, 3, function(c)
+		c:activate {
+			context = 'titlebar',
+			action = 'mouse_resize'
+		}
+	end)
+)
+
 client.connect_signal('request::unmanage', function(c)
 	if c.modal or c.transient_for then
 		awesome.emit_signal('modal::hide')
@@ -28,15 +49,12 @@ ruled.client.connect_signal('request::rules', function()
 			screen       = awful.screen.preferred,
 			placement    = awful.placement.no_overlap+awful.placement.no_offscreen,
 			size_hints_honor  = false,
+			buttons = clientbuttons
 		},
 		callback = function(c)
 			c.border_width = 0
 			if c.requests_no_titlebar then
 				awful.titlebar.hide(c)
-			--[[elseif c.transient_for then
-				c.x = (c.transient_for.width - c.width)/2
-				c.y = (c.transient_for.height - c.height)/2
-				]]
 			end
 		end
 	}
@@ -70,7 +88,7 @@ ruled.client.connect_signal('request::rules', function()
 		properties = { floating = true }
 	}
 
-	-- Fix requests_no_titlebar someone clients
+	-- Fix requests_no_titlebar for someone clients
 	ruled.client.append_rule {
 		rule_any = {
 			class = { "Xfce4-terminal"}
