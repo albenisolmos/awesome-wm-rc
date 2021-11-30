@@ -26,7 +26,7 @@ return function(widget, popup_widget, on_hold)
 			if not popup_widget then return end
 			if type(popup_widget) == 'function' then
 				awesome.emit_signal('popup::hide')
-				popup_widget()
+				popup_widget(applet)
 			else
 				awesome.emit_signal('popup::open', popup_widget)
 			end
@@ -35,7 +35,7 @@ return function(widget, popup_widget, on_hold)
 			applet:set_bg(beautiful.transparent)
 			awesome.emit_signal('popup::hide')
 			if not on_hold then return end
-			on_hold()
+			on_hold(applet)
 		end
 	}
 
@@ -54,6 +54,11 @@ return function(widget, popup_widget, on_hold)
 
 	function applet:set_image(img)
 		widget:set_image(img)
+	end
+
+	function applet:actions(_popup_widget, _on_hold)
+		popup_widget = _popup_widget
+		on_hold = _on_hold
 	end
 
 	awesome.connect_signal('popup::hide', function()
