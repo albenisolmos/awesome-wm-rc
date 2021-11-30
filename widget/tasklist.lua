@@ -1,11 +1,11 @@
-local awful               = require('awful')
-local abutton             = require('awful.button')
-local wibox               = require('wibox')
-local gshape               = require('gears.shape')
-local beautiful           = require('beautiful')
-local dpi                 = beautiful.xresources.apply_dpi
-local clickable           = require 'widget.clickable'
-local applet              = require 'widget.applet'
+local awful      = require('awful')
+local abutton    = require('awful.button')
+local wibox      = require('wibox')
+local gshape     = require('gears.shape')
+local beautiful  = require('beautiful')
+local dpi        = beautiful.xresources.apply_dpi
+local clickable  = require 'widget.clickable'
+local applet     = require 'widget.applet'
 
 local selected_client
 
@@ -46,7 +46,7 @@ return function(screen)
 					c:raise()
 				end
 			end),
-			abutton({ }, 3, function(c)
+			abutton({ }, 3, function()
 				options:toggle()
 			end),
 			abutton({ }, 4, function(c)
@@ -67,15 +67,9 @@ return function(screen)
 			end,
 			fg_normal = '#999999'
 		},
-		--[[layout {
-			layout = wibox.layout.fixed.horizontal,
-			fill_space = true,
-		},]]
 		widget_template = {
 			id = 'background_role',
 			layout = clickable,
-			on_enter = function(self)
-			end,
 			create_callback = function(self, c, index)
 				self.client = c
 				self:get_children_by_id('background_role')[1]:connect_signal('mouse::enter', function()
@@ -89,33 +83,32 @@ return function(screen)
 					margins = dpi(3),
 					{
 						id = 'icon_role',
-						widget = wibox.widget.imagebox 
+						widget = wibox.widget.imagebox
 					}
+				},
+				{
+					widget = wibox.widget.textbox,
+					id = 'text_role'
 				}
 			}
 		}
 	}
-	tasklist.visible = false
+	tasklist.visible = true 
 
 	local tasklist_applet = applet(
 		wibox.widget.imagebox(beautiful.icon_list),
 		function()
-			if tasklist.visible then
-				tasklist.visible = false
-			else
-				tasklist.visible = true
-			end
+			tasklist.visible = not tasklist.visible
 			tasklist:emit_signal('widget::redraw_needed')
 		end
 	)
 
 	local tasklist_layout = wibox.widget {
-		layout = wibox.layout.align.horizontal,
+		layout = wibox.layout.fixed.horizontal,
+		fill_space = true,
 		tasklist_applet,
-		{
-			layout = wibox.layout.fixed.horizontal,
-			tasklist
-		}
+		tasklist,
+		nil
 	}
 
 	return tasklist_layout
