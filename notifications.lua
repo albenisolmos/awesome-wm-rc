@@ -1,12 +1,9 @@
 local awful     = require('awful')
 local wibox     = require('wibox')
 local shape     = require('gears.shape')
-local ruled     = require('ruled')
-local menubar   = require('menubar')
 local naughty   = require('naughty')
 local beautiful = require('beautiful')
 local dpi       = beautiful.xresources.apply_dpi
-local apps      = require 'apps'
 
 naughty.config.defaults.title = 'System Notification'
 naughty.config.defaults.border_width = 1
