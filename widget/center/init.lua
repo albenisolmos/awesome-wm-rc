@@ -1,7 +1,6 @@
 local wibox     = require('wibox')
 local beautiful = require('beautiful')
 local dpi       = beautiful.xresources.apply_dpi
-local apps      = require 'apps'
 local slider    = require 'widget.slider'
 
 local sound_slider = slider(
@@ -9,7 +8,7 @@ local sound_slider = slider(
 	beautiful.icon_sound_soft,
 	beautiful.icon_sound,
 	require 'widget.sound.slider',
-	apps.sound_manager
+	_G.preferences.manager_sound
 )
 
 local brightness_slider = slider(
