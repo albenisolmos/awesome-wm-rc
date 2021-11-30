@@ -5,21 +5,15 @@ local shape     = require('gears.shape')
 local beautiful = require("beautiful")
 local dpi       = beautiful.xresources.apply_dpi
 
-local apps        = require "apps"
-local animate     = require 'util.animate'
+local animate    = require 'util.animate'
 local build_item = require 'display.dock.item'
-local utils = require 'display.dock.utils'
+local utils      = require 'display.dock.utils'
 
 local partial_show = false
---[[
-local clients_layout = wibox.layout.fixed.horizontal()
-function clients_layout:add_client(c)
-	self.add(build_item(c.icon, nil, c.name))
-end
-]]
+
 local items_layout = wibox.layout.fixed.horizontal()
 items_layout:set_spacing(dpi(5))
-items_layout:add(build_item(beautiful.icon_launcher, nil, apps.launcher))
+items_layout:add(build_item(beautiful.icon_launcher, nil, _G.preferences.launcher))
 items_layout:add(wibox.widget {
 		layout = wibox.container.margin,
 		top = dpi(4),
@@ -30,19 +24,18 @@ items_layout:add(wibox.widget {
 			forced_width = dpi(1)
 		}
 	})
-items_layout:add(build_item(beautiful.icon_file_manager, nil, apps.filemanager))
 
 local function current_clients()
 	local t = awful.screen.focused().selected_tag
 	return t:clients()
 end
 
-return function(screen)
-	local normal_coord = screen.geometry.height - dpi(52)
-	local offscreen_coord = screen.geometry.height + 1
+return function(s)
+	local normal_coord = s.geometry.height - dpi(52)
+	local offscreen_coord = s.geometry.height + 1
 
 	local dock = wibox {
-		screen  = screen,
+		screen  = s,
 		type    = 'dock',
 		ontop   = false,
 		visible = true,
@@ -66,7 +59,7 @@ return function(screen)
 		local num_items = 43 * #items_layout.children
 		num_items = num_items - 10
 		self.width = num_items
-		self.x = (screen.geometry.width-self.width) / 2
+		self.x = (s.geometry.width-self.width) / 2
 	end
 
 	local function need_hide_dock()
@@ -89,7 +82,6 @@ return function(screen)
 		single_shot = true,
 		callback = function()
 			dock:hide()
-			partial_show = false
 		end
 	}
 
@@ -98,6 +90,7 @@ return function(screen)
 			time_hide_dock:start()
 		end
 	end)
+
 	dock:connect_signal('mouse::enter', function()
 		if time_hide_dock.started then
 			time_hide_dock:stop()
@@ -146,6 +139,8 @@ return function(screen)
 		end
 	end
 
+	screen.connect_signal('tag::history::update', function()
+	end)
 	awesome.connect_signal('dock::item', function(args)
 		items_layout:add(build_item(args.icon, args.name, args.onclick))
 		dock:fit()
