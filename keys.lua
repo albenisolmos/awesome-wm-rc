@@ -1,9 +1,6 @@
 local awful      = require('awful')
-local wibox      = require('wibox')
 local naughty    = require('naughty')
-local apps       = require 'apps'
 local pic_path   = '/Pictures/'
-local multispawn = require('util.multispawn')
 local modkey     = 'Mod4'
 
 require('awful.autofocus')
@@ -82,9 +79,9 @@ awful.keyboard.append_global_keybindings({
 	{ description = 'Show help', group = 'Awesome' }),
 
 	awful.key({ modkey }, 'r', function()
-		awesome.emit_signal('dialog::write', 'run')
+		awesome.emit_signal('runner::run', 'run')
 	end,
-	{ description = 'Run', group = 'Awesome' }),
+	{ description = 'Open Runner', group = 'Awesome' }),
 
 	awful.key({ modkey }, 'p', function()
 		awful.spawn.with_shell('dbus-send --print-reply --dest=org.gnome.Lollypop /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause')
@@ -143,12 +140,12 @@ awful.keyboard.append_global_keybindings({
 	{ description='Take a Rectangle Screenshot', group = 'Launch' }),
 
 	awful.key({ modkey }, 'Return', function()
-		awful.spawn(apps.terminal)
+		awful.spawn(_G.preferences.terminal)
 	end,
 	{ description = 'Open a terminal', group = 'System' }),
 
 	awful.key({ }, 'Super_R', function()
-		awful.spawn(apps.launcher)
+		awful.spawn(_G.preferences.launcher)
 	end,
 	{ description = 'Apps launcher', group = 'System' }),
 
