@@ -1,6 +1,5 @@
 local spawn     = require('awful.spawn')
 local beautiful = require('beautiful')
-local apps      = require 'apps'
 local network   = require 'widget.network'
 
 local wifi = network( beautiful.icon_wifi_on, 'Wi-fi' )
@@ -14,7 +13,7 @@ wifi:actions {
 		end
 	end,
 	on_hold = function()
-		spawn(apps.network_manager)
+		spawn(_G.preferences.manager_network)
 	end
 }
 
@@ -48,6 +47,5 @@ spawn.easy_async('bash -c "nmcli radio wifi"', function(stdout)
 		awesome.emit_signal('wifi::status', true)
 	end
 end)
-
 
 return wifi
