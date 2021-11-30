@@ -20,9 +20,8 @@ return function(screen)
 				layout = wibox.layout.align.horizontal,
 				require 'widget.user',
 				require 'widget.workspaces',
-				require 'widget.tasklist'(screen)
 			},
-			nil,
+			require 'widget.tasklist'(screen),
 			{
 				layout = wibox.layout.fixed.horizontal,
 				require 'widget.systray',
@@ -35,11 +34,11 @@ return function(screen)
 			}
 		}
 	})
-	topbar:struts( { top = topbar.height } )
+	topbar:struts({ top = topbar.height })
 
 	function topbar:hide()
 		partial_show = false
-		topbar:struts( { top = 0 } )
+		topbar:struts({ top = 0 })
 		self.y = -self.height
 	end
 
@@ -66,7 +65,7 @@ return function(screen)
 
 	function topbar:show()
 		partial_show = false
-		self:struts( { top = topbar.height } )
+		self:struts({ top = topbar.height })
 		self.ontop = false
 		self.y = 0
 	end
@@ -78,17 +77,25 @@ return function(screen)
 		time_to_hide_topbar:start()
 	end
 
-	local function clients_change_topbar()
+	local function change_topbar(c)
+		if c.fullscreen and not c.minimized then
+			topbar:hide()
+			topbar.bg = beautiful.transparent
+			return true
+		elseif c.maximized
+			or (not c.floating and not c.minimized)
+			and c.skip_taskbar then
+			topbar.bg = beautiful.titlebar_bg
+			topbar:show()
+			return true
+		end
+	end
+
+	local function update_topbar()
 		local t = ascreen.focused().selected_tag
 
 		for _, c in pairs(t:clients()) do
-			if c.fullscreen and not c.minimized then
-				topbar:hide()
-				topbar.bg = beautiful.transparent
-				return
-			elseif c.maximized or (not c.floating and not c.minimized) and c.skip_taskbar then
-				topbar.bg = beautiful.titlebar_bg
-				topbar:show()
+			if change_topbar(c) then
 				return
 			end
 		end
@@ -97,9 +104,9 @@ return function(screen)
 		topbar:show()
 	end
 
-	awesome.connect_signal('topbar::update', clients_change_topbar)
-	client.connect_signal('property::minimized', clients_change_topbar)
-	client.connect_signal('property::maximized', clients_change_topbar)
+	awesome.connect_signal('topbar::update', update_topbar)
+	client.connect_signal('property::minimized', update_topbar)
+	client.connect_signal('property::maximized', update_topbar)
 	awesome.connect_signal('topbar::partial_show', function()
 		topbar:partial_show()
 	end)
