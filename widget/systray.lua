@@ -7,13 +7,13 @@ systray.visible = false
 
 local applet = build_applet(
 	wibox.widget.imagebox(beautiful.icon_arrow_left),
-	function()
+	function(self)
 		if systray.visible then
 			systray.visible = false
-			applet:set_image(beautiful.icon_left_arrow)
+			self:set_image(beautiful.icon_arrow_left)
 		else
 			systray.visible = true
-			applet:set_image(beautiful.icon_right_arrow)
+			self:set_image(beautiful.icon_arrow_right)
 		end
 	end
 )
