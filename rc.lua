@@ -1,7 +1,4 @@
-require('preferences')
-
 local awful     = require('awful')
-local wibox     = require('wibox')
 local gears     = require('gears')
 local shape     = require('gears.shape')
 local beautiful = require('beautiful')
@@ -10,35 +7,26 @@ local hotkeys   = require('awful.hotkeys_popup')
 local dpi       = beautiful.xresources.apply_dpi
 local dir       = gears.filesystem.get_configuration_dir()
 
-awesome.connect_signal('debug::error', function(err)
-	naughty.notification {
-		title = 'Debug::Error', text = tostring(err)
-	}
-end)
-
 -- Preferences
+require('preferences')
 awful.util.shell = _G.preferences.shell
 awful.mouse.snap.edge_enabled = false
 awful.mouse.snap.client_enabled = false
--- Start Apps in the startup
-awful.spawn.once('picom')
-awful.spawn.once('/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1')
+awesome.set_preferred_icon_size(64)
 
-if _G.preferences.desktop_icon then
-	awful.spawn.once('nautilus-desktop', {
-			sticky = true,
-			skip_taskbar = true
-		})
+-- On init
+beautiful.init(dir .. '/themes/' .. _G.preferences.theme .. '.lua')
+for _, command in pairs(_G.preferences.once_spawn) do
+	awful.spawn.once(command)
 end
 
-beautiful.init(dir .. '/themes/' .. _G.preferences.theme .. '.lua')
-
--- Titlebar
-require('titlebars.'.. _G.preferences.titlebar_style)
+require 'titlebar'
 require 'notifications'
 require 'keys'
 require 'rule'
-require 'global'
+require 'signals'
+local Tab = require 'titlebar.tab'
+Tab.init()
 
 --
 -- Wallpaper
@@ -46,9 +34,12 @@ require 'global'
 screen.connect_signal("request::wallpaper", function(s)
 	if _G.preferences.wallpaper then
 		local wallpaper = _G.preferences.wallpaper
+
 		if type(wallpaper) == "function" then
 			wallpaper = wallpaper(s)
-		elseif wallpaper[0] == '#' then
+		end
+
+		if wallpaper[0] == '#' then
 			gears.wallpaper.set(beautiful.wallpaper_color)
 		else
 			gears.wallpaper.maximized(wallpaper, s, true)
@@ -73,12 +64,11 @@ screen.connect_signal('request::desktop_decoration', function(s)
 	set_tag('1', s, beautiful.icon_taglist_home, awful.layout.suit.floating, true)
 	set_tag('2', s, beautiful.icon_taglist_development, awful.layout.suit.floating)
 	set_tag('3', s, beautiful.icon_taglist_web_browser, awful.layout.suit.floating)
-
 	-- Desktop Components
 	s.exitscreen = require 'display.exit-screen'(s)
-	s.switcher   = require 'display.switcher'(s)
+	s.switcher   = require 'display.switcher.__switcher'(s)
 	s.dock       = require 'display.dock'(s)
-	s.dialog     = require 'display.dialog'(s)
+	s.runner     = require 'display.runner'(s)
 	s.hotcorners = require 'display.hot-corners'(s)
 	s.topbar     = require 'display.topbar'(s)
 	s.popup      = require 'display.popup'(s)
@@ -97,6 +87,7 @@ end)
 root.buttons({ 
 	awful.button({ }, 1, function()
 		awesome.emit_signal('popup::hide')
+		awesome.emit_signal('menu::hide')
 	end)
 })
 
@@ -163,16 +154,15 @@ awesome.connect_signal('hotkeys::show', function()
 	hotkeys.show_help()
 end)
 
-screen.emit_signal('tag::history::update')
+--screen.emit_signal('tag::history::update')
 
 local last_coords = {x=0, y=0}
-
-awful.mouse.resize.add_enter_callback(function(c, _, args)
+awful.mouse.resize.add_enter_callback(function(c)
 	last_coords.x = c.x
 	last_coords.y = c.y
 end, 'mouse.move')
 
-awful.mouse.resize.add_leave_callback(function(c, _, args)
+awful.mouse.resize.add_leave_callback(function(c)
 	if (not c.floating)
 		and awful.layout.get(c.screen) ~= awful.layout.suit.floating
 		then
@@ -181,12 +171,13 @@ awful.mouse.resize.add_leave_callback(function(c, _, args)
 
 	local coords = mouse.coords()
 	local sg = c.screen.geometry
+	local sw = c.screen.workarea
 	local snap = awful.mouse.snap.default_distance
 
 	if coords.x > snap + sg.x
 		and coords.x < sg.x + sg.width - snap
 		and coords.y <= snap + sg.y
-		and coords.y >= sg.y 
+		and coords.y >= sg.y
 		then
 		c.maximized = true
 		c:raise()
@@ -198,5 +189,15 @@ awful.mouse.resize.add_leave_callback(function(c, _, args)
 		c.minimized = true
 		c.x = last_coords.x
 		c.y = last_coords.y
+	elseif coords.x == 0 then
+		c.x = 0
+		c.y = sw.y
+		c.width = sg.width / 2
+		c.height = sg.height - sw.y
+	elseif coords.x >= sg.width - snap then
+		c.x = sg.width - c.width 
+		c.y = sw.y
+		c.width = sg.width / 2
+		c.height = sg.height - sw.y
 	end
 end, "mouse.move")
