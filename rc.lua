@@ -66,7 +66,7 @@ screen.connect_signal('request::desktop_decoration', function(s)
 	set_tag('3', s, beautiful.icon_taglist_web_browser, awful.layout.suit.floating)
 	-- Desktop Components
 	s.exitscreen = require 'display.exit-screen'(s)
-	s.switcher   = require 'display.switcher.__switcher'(s)
+	s.switcher   = require 'display.switcher'(s)
 	s.dock       = require 'display.dock'(s)
 	s.runner     = require 'display.runner'(s)
 	s.hotcorners = require 'display.hot-corners'(s)
