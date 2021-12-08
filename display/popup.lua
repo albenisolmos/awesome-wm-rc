@@ -2,7 +2,6 @@ local wibox     = require('wibox')
 local shape     = require('gears.shape')
 local beautiful = require('beautiful')
 local dpi       = beautiful.xresources.apply_dpi
-local animate   = require 'util.animate'
 
 local current_widget = {}
 local content = wibox.layout.fixed.vertical()
@@ -33,7 +32,8 @@ return function(screen)
 	end
 
 	local function set_position()
-		local x, position = mouse.coords().x, 0
+		local x = mouse.coords().x
+		local position = 0
 		local screen_width, screen_x = screen.geometry.width, screen.geometry.x
 
 		if (x + popup.width/2) > screen_width then
@@ -80,6 +80,7 @@ return function(screen)
 		if not popup.visible then
 			popup.visible = true
 			popup.y = screen.geometry.y + 27
+			_G.is_popup_visible = true
 		end
 	end)
 
@@ -87,6 +88,7 @@ return function(screen)
 		if popup.visible then
 			popup.y = screen.geometry.y + 21
 			popup.visible = false
+			_G.is_popup_visible = false
 		end
 	end)
 
