@@ -11,6 +11,7 @@ local clients_box = wibox.layout.fixed.horizontal()
 local clients = {}
 local index = 1
 local switcher = {}
+local last_client
 
 local function get_client_widget(idx)
 	local widget = clients_box.children[idx]
@@ -18,7 +19,7 @@ local function get_client_widget(idx)
 end
 
 local function client_can_be_shown(c)
-	 return c.minimized or c.skip_taskbar and false or true
+	 return c.minimized or c.skip_taskbar or c.hidden and false or true
 end
 
 local function filter_clients(clis)
@@ -50,6 +51,8 @@ local function remove_client(c)
 			if child.client == c then
 				clients_box:remove(i)
 				switcher:update_geometry()
+				clients_box:emit_signal('widget::redraw_needed')
+				clients_box:emit_signal('widget::layout_changed')
 				break
 			end
 		end
@@ -57,6 +60,7 @@ local function remove_client(c)
 end
 
 local function add_client(c)
+	if last_client == c then return end
 	if client_can_be_shown(c) then
 		clients_box:add(client_widget(c))
 		switcher:update_geometry()
@@ -64,11 +68,13 @@ local function add_client(c)
 end
 
 local function add_clients(clis)
+	last_client = clis[1]
 	for _, cli in pairs(clis) do
 		if client_can_be_shown(cli) then
 			clients_box:add(client_widget(cli))
 		end
 	end
+	switcher:update_geometry()
 end
 
 local function change_clients(clis)
@@ -115,19 +121,19 @@ local function focus_next_client(no_change_prev)
 	if n_clients < 1 then
 		return
 	elseif no_change_prev ~= true then
-		get_client_widget(index):set_focus(false)
+		get_client_widget(index):focus(false)
 	end
 
 	increase_index()
-	get_client_widget(index):set_focus(true)
+	get_client_widget(index):focus(true)
 end
 
 local function focus_previous_client()
 	if #clients < 1 then return end
 
-	get_client_widget(index):set_focus(false)
+	get_client_widget(index):focus(false)
 	decrease_index()
-	get_client_widget(index):set_focus(true)
+	get_client_widget(index):focus(true)
 end
 
 local function close_focused_client()
@@ -196,7 +202,7 @@ return function(screen)
 				key       = 'Tab',
 				on_press = function()
 					if #clients > 0 then
-						get_client_widget(index):set_focus(true)
+						get_client_widget(index):focus(true)
 					end
 				end
 			}
@@ -234,7 +240,7 @@ return function(screen)
 			if #clients <= 1 then return end
 			local children = clients_box.children
 			children[index].client:activate { raise = true }
-			children[index]:set_focus(false)
+			children[index]:focus(false)
 		end,
 		export_keybindings = false
 	}
