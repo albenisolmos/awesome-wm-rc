@@ -122,7 +122,7 @@ awful.keyboard.append_global_keybindings({
 
 		awful.spawn.easy_async_with_shell(
 		string.format('scrot $f %s%s%s', home, pic_path, name),
-		function(stdout)
+		function()
 			naughty.notification {
 				app_name = 'Awesome',
 				title = 'Screenshot saved',

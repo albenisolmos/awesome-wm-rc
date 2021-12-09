@@ -1,29 +1,3 @@
-terminator
-furros
-evince
-xev
-memo linux
-mame samsho4
-mame
-htop
-spacefm --desktop
-spacefm -d
-spacefm --desktop-ref
-spacefm --desktop-pref
-awesomerc
-picom -b
-picom --experimental-backends -b
-winecfg
-xfce-terminal
-killall gimp
-killall lollypop√ß
-killall lollypop√
-reboot
-killall gpicview
-emacs25-x ~/rpdf
-picom
-killall xfce4-terminal
-logout
 killall spacefm
 killall nautilus-desktop
 scrot -u
@@ -36,7 +10,6 @@ killlall nautilus
 killall dconf
 killall galculator
 killall evince
-killall picom
 gpicview
 killalll firefox
 killall inkscape
@@ -45,6 +18,33 @@ firefox bancaribe
 killall exitscreen
 killall lollypop
 killall smplayer
-killall nautilus
 killall terminator
+fireofox -search loco
+terminator
+t:vifm
+w:videos
+w:loc
+w:locoz
+ w:loc
+w:loco
+t:ranger
+t: --new-tab vifm
+firefox
+rhymthbox
+nautilus
+killall libreoffice
+tabbed zathura -e
+tabbed -c zathura -e
+tabbed -c zathura -e &
+ulauncher
+gpcik
+gpick
+killall ulauncher
+logout
+xfce-terminal
+xfce4-terminal
+killall nautilus√
+killall nautilus
+scrot $f
 killall firefox
+killall picom
