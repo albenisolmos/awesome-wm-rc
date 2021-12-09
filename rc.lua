@@ -96,7 +96,12 @@ root.buttons({
 --
 
 local function fullscreen_or_maximized(c)
-	if c.fullscreen or c.maximized then
+	if c.maximized then
+		c.shape = function(cr, w, h)
+			shape.rounded_rect(cr, w, h, dpi(8), dpi(8), 0, 0)
+		end
+		c.border_width = 0
+	elseif c.fullscreen then
 		c.shape = shape.rectangle
 		c.border_width = 0
 	else
