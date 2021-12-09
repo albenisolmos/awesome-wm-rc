@@ -4,6 +4,8 @@ local wibox     = require('wibox')
 local beautiful = require('beautiful')
 local dpi       = beautiful.xresources.apply_dpi
 local partial_show = false
+local height = dpi(21)
+local increased_height = dpi(26)
 
 return function(screen)
 	local topbar = wibox({
@@ -11,39 +13,64 @@ return function(screen)
 		type = 'dock',
 		ontop = false,
 		visible = true,
-		height = dpi(21),
+		height = height,
 		width = screen.geometry.width,
 		bg = beautiful.transparent,
-		widget = {
-			layout = wibox.layout.align.horizontal,
+		widget = wibox.widget {
+			layout = wibox.layout.fixed.vertical,
 			{
 				layout = wibox.layout.align.horizontal,
-				require 'widget.user',
-				require 'widget.workspaces',
+				{
+					layout = wibox.layout.align.horizontal,
+					require 'widget.user',
+					require 'widget.workspaces',
+				},
+				require 'widget.tasklist'(screen),
+				{
+					layout = wibox.layout.fixed.horizontal,
+					require 'widget.systray',
+					require 'widget.taglist'(screen),
+					require 'widget.sound.applet',
+					require 'widget.hardware-monitor.applet',
+					require 'widget.dollar.applet',
+					require 'widget.center.applet',
+					require 'widget.clock.applet'
+				}
 			},
-			require 'widget.tasklist'(screen),
 			{
-				layout = wibox.layout.fixed.horizontal,
-				require 'widget.systray',
-				require 'widget.taglist'(screen),
-				require 'widget.sound.applet',
-				require 'widget.hardware-monitor.applet',
-				require 'widget.dollar.applet',
-				require 'widget.center.applet',
-				require 'widget.clock.applet'
+				layout = wibox.container.margin,
+				bottom = dpi(5),
+				id = 'margin'
 			}
 		}
 	})
+
 	topbar:struts({ top = topbar.height })
 
+	local function topbar_reset_size()
+		return
+		--[[if topbar.height ~= height then
+			topbar.height = height
+			topbar:get_children_by_id('margin')[0].bottom = 0
+		end]]
+	end
+
+	local function topbar_inc_size()
+		--[[if topbar.height ~= increased_height then
+			topbar.height = increased_height
+			_G.print(topbar:get_children_by_id('margin')[0])
+		end]]
+	end
+
 	function topbar:hide()
+		if _G.is_popup_visible then return end
 		partial_show = false
 		topbar:struts({ top = 0 })
 		self.y = -self.height
 	end
 
 	local time_to_hide_topbar = gtimer {
-		timeout = 1,
+		timeout = 0.7,
 		autostart = false,
 		single_shot = true,
 		callback = function()
@@ -81,11 +108,13 @@ return function(screen)
 		if c.fullscreen and not c.minimized then
 			topbar:hide()
 			topbar.bg = beautiful.transparent
+			topbar_reset_size()
 			return true
 		elseif c.maximized
 			or (not c.floating and not c.minimized)
 			and c.skip_taskbar then
 			topbar.bg = beautiful.titlebar_bg
+			topbar_inc_size()
 			topbar:show()
 			return true
 		end
@@ -97,6 +126,8 @@ return function(screen)
 		for _, c in pairs(t:clients()) do
 			if change_topbar(c) then
 				return
+			else
+				topbar_reset_size()
 			end
 		end
 
