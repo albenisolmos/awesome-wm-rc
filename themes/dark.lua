@@ -1,7 +1,3 @@
---================================================
---              My Awesome Theme                ==
---================================================
-
 local shape = require('gears.shape')
 local dir   = require('gears.filesystem').get_configuration_dir() .. '/themes/'
 local dpi   = require('beautiful').xresources.apply_dpi
@@ -15,107 +11,92 @@ local default_font   = 'SF Pro Display '
 -- Variables
 theme.font        = default_font .. ' 10'
 theme.font_medium = default_font .. 'Regular 12'
-theme.font_small  = default_font .. 'Regular 10' 
+theme.font_small  = default_font .. 'Regular 10'
 theme.font_bold   = default_font .. 'Semi-Bold 10'
 theme.font_big    = default_font .. 'Regular 15'
-
 theme.wallpaper       = dir .. 'wp2.jpg'
 theme.wallpaper_color = '#222225'
 theme.wallpaper_type  = 'image'
 theme.icon_user = dir .. 'icon-user.png'
-
-theme.dock_use               = true
-theme.dock_hide              = true
-theme.dock_bg_solid          = false
-
-theme.topbar_tasklist        = false
-theme.topbar_bg_solid        = false
+theme.dock_use = true
+theme.dock_hide = true
+theme.dock_bg_solid = false
+theme.topbar_tasklist = false
+theme.topbar_bg_solid = false
 theme.topbar_hide_maximized  = false
-
-theme.desktop_icon           = false
+theme.desktop_icon = false
 theme.client_rounded_corners = 8
-theme.switcher_preview       = false
-theme.titlebar_style         = 'windows'
-
--- Separation among clients
-theme.useless_gap      = 0
 theme.switcher_preview = false
-theme.dock_use         = false
-theme.dock             = false
-theme.dock_autohide    = false
-theme.desktop_icon     = false
-
-theme.bg           = '#00000070'
-theme.bg_card      = '#00000020'
-theme.bg_chips     = '#FFFFFF15'
-theme.bg_hover     = '#FFFFFF10'
-theme.bg_press     = '#00000020'
-theme.bg_urgent    = '#ff0000'
+theme.titlebar_style = 'windows'
+theme.useless_gap = 0
+theme.switcher_preview = false
+theme.dock_use = false
+theme.dock = false
+theme.dock_autohide = false
+theme.desktop_icon = false
+theme.bg = '#15151595'
+theme.bg_card = '#00000020'
+theme.bg_chips = '#FFFFFF15'
+theme.bg_hover = '#FFFFFF10'
+theme.bg_press = '#00000020'
+theme.bg_urgent = '#ff0000'
 theme.bg_highlight = '#228ae7d8'
-theme.transparent  = '#00000000'
-
-theme.border_width  = dpi(1)
+theme.transparent = '#00000000'
+theme.border_width = dpi(1)
 theme.border_normal = '#252525'
 theme.border_focus  = '#252525'
 theme.border_marked = '#91231c'
-
-theme.fg_normal   = '#D8D8D8'
-theme.fg_focus    = '#D8D8D8'
-theme.fg_urgent   = '#ffffff'
+theme.fg_normal = '#D8D8D8'
+theme.fg_focus = '#D8D8D8'
+theme.fg_urgent = '#ffffff'
 theme.fg_minimize = '#ffffff'
-theme.fg_soft     = '#D8D8D870'
+theme.fg_soft = '#D8D8D870'
 theme.fg_soft_medium = '#D8D8D8D0'
 theme.fg_soft_focus = '#D8D8D8D0'
-
 -- Taglist
-theme.taglist_bg_empty           = '#00000000'
-theme.taglist_bg_occupied        = '#00000000'
-theme.taglist_fg_occupied        = '#81A2BE'
-theme.taglist_bg_urgent          = '#CC6666'
-theme.taglist_bg_focus           = '#00000000'
+theme.taglist_bg_empty = '#00000000'
+theme.taglist_bg_occupied = '#00000000'
+theme.taglist_fg_occupied = '#81A2BE'
+theme.taglist_bg_urgent = '#CC6666'
+theme.taglist_bg_focus = '#00000000'
 theme.taglist_shape_border_color = '#22242E'
-
 -- Menu
-theme.menu_height       = dpi(25)
-theme.menu_width        = dpi(150)
-theme.menu_bg_normal    = theme.bg
-theme.menu_bg_focus     = '#228AE7'
+theme.menu_height = dpi(25)
+theme.menu_width = dpi(150)
+theme.menu_bg_normal = theme.bg
+theme.menu_bg_focus = '#228AE7'
 theme.menu_border_width = 0
 theme.menu_border_color = '#0c1E26'
-theme.menu_shape        = shape.rounded_rect
-
+theme.menu_shape = shape.rounded_rect
 --  Tasklist
-theme.tasklist_font            = theme.font
+theme.tasklist_font = theme.font
 theme.tasklist_plain_task_name = true
-theme.tasklist_disable_icon    = false
-theme.tasklist_align           = 'left'
-theme.tasklist_spacing         = dpi(5)
-theme.tasklist_fg_normal       = '#737373'
-theme.tasklist_bg_normal       = '#00000000'
-theme.tasklist_fg_focus        = '#D8D8D8'
-theme.tasklist_bg_focus        = theme.bg_medium_trans
-theme.tasklist_bg_urgent       = '#22242e20'
-theme.tasklist_fg_minimize     = '#737373'
-theme.tasklist_bg_minimize     = theme.bg_trans
-theme.tasklist_shape           = shape.rounded_rect
-theme.tasklist_shape_focus     = shape.rounded_rect
-
+theme.tasklist_disable_icon = false
+theme.tasklist_align = 'left'
+theme.tasklist_spacing = dpi(5)
+theme.tasklist_fg_normal = '#737373'
+theme.tasklist_bg_normal = '#00000000'
+theme.tasklist_fg_focus = '#D8D8D8'
+theme.tasklist_bg_focus = theme.bg_medium_trans
+theme.tasklist_bg_urgent = '#22242e20'
+theme.tasklist_fg_minimize = '#737373'
+theme.tasklist_bg_minimize = theme.bg_trans
+theme.tasklist_shape = shape.rounded_rect
+theme.tasklist_shape_focus = shape.rounded_rect
 -- Switch
-theme.switch_bar_color        = theme.bg_medium
+theme.switch_bar_color = theme.bg_medium
 theme.switch_bar_color_active = "#228AE7"
 theme.switch_bar_height = dpi(20)
 theme.switch_bar_width = dpi(35)
 theme.switch_bar_shape = shape.rounded_bar
 theme.switch_bar_border_width = 1
 theme.switch_bar_border_color = "228AE7"
-
 theme.switch_handle_color = "#FFFFFF"
 theme.switch_handle_height = dpi(15)
 theme.switch_handle_width = dpi(15)
 theme.switch_handle_shape = shape.circle
 theme.switch_handle_border_width = 0
 theme.switch_handle_border_color = "228AE7"
-
 -- Tooltip
 theme.tooltip_bg           = theme.bg
 theme.tooltip_fg           = '#D8D8D8'
@@ -123,7 +104,6 @@ theme.tooltip_border_color = '#00000050'
 theme.tooltip_border_width = dpi(1)
 theme.tooltip_shape        = shape.rounded_rect
 theme.tooltip_gaps         = dpi(5)
-
 -- Hotkeys
 theme.hotkeys_bg           = theme.bg
 --theme.hotkeys_font         = theme.font
@@ -132,28 +112,23 @@ theme.hotkeys_shape        = shape.rounded_rect
 theme.hotkeys_border_width = dpi(2)
 theme.hotkeys_border_color = '#00000015'
 --theme.hotkeys_group_margin = dpi(10)
-
 -- Separator
 theme.separator_color = theme.bg_chips
 theme.separator_shape = shape.rounded_bar
-
 -- Progressbar
 theme.progressbar_bg    = theme.bg_chips
 theme.progressbar_fg    = '#ffffff'
 theme.progressbar_shape = shape.rounded_bar
-
 -- Clickable container
 theme.clickable_normal = theme.transparent
 theme.clickable_hover  = theme.bg_hover
 theme.clickable_press  = theme.bg_press
-
 -- Naughty
 theme.notification_font     = theme.font
 theme.notification_fg       = theme.fg_normal
 theme.notification_bg       = theme.bg
 theme.notification_shape    = shape.rounded_rect
 theme.notification_critical = '#b52b2b'
-
 -- Slider
 theme.slider_bar_color           = theme.bg_chips
 theme.slider_bar_shape           = shape.rounded_bar
@@ -165,21 +140,17 @@ theme.slider_handle_shape        = shape.circle
 theme.slider_handle_width        = dpi(19)
 theme.slider_handle_border_color = '#999999'
 theme.slider_handle_border_width = dpi(1)
-
 -- Prompt
 theme.prompt_bg_cursor = '#FFFFFF'
 theme.prompt_bg        = theme.transparent
 theme.prompt_fg_cursor = '#FFFFFF'
 theme.prompt_font      = 'Ubuntu 15'
-
 -- Systray
 theme.bg_systray           = theme.transparent
 theme.systray_icon_spacing = dpi(10)
-
 --  Titlebar
 theme.titlebar_bg = '#212121'
 theme.titlebar_fg = '#d8d8d8'
-
 -- Snap
 theme.snap_bg = theme.bg_hi
 theme.snap_border_width = dpi(2)
