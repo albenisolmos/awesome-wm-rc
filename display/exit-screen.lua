@@ -50,7 +50,7 @@ return function(screen)
 		height  = screen.geometry.height,
 		x       = screen.geometry.x,
 		y       = screen.geometry.y,
-		widget  = {
+		widget  = wibox.widget {
 			id = 'area_exit_screen',
 			layout = wibox.container.place,
 			{

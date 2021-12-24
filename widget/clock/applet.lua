@@ -1,6 +1,5 @@
 local wibox = require('wibox')
-local beautiful = require('beautiful')
-local dpi = beautiful.xresources.apply_dpi
+local dpi = require('beautiful').xresources.apply_dpi
 local applet = require('widget.applet')
 
 local clock = applet(

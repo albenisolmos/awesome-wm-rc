@@ -4,13 +4,24 @@ local abutton = require('awful.button')
 local shape = require('gears.shape')
 local beautiful = require('beautiful')
 local dpi = beautiful.xresources.apply_dpi
+local gtable = require('gears.table')
 
 local status
 
-local function build_button( icon, exec )
+local function build_button(icon, exec)
 	local button = wibox.widget {
 		layout = wibox.container.margin,
 		margins = 0,
+		buttons = gtable.join(
+			abutton({}, 1, function()
+				local margin = 1
+				while margin ~= 2 do
+					margin = margin + 1
+					button:set_margins(margin)
+				end
+			end,
+			function() spawn.with_shell(exec) end
+		)),
 		id = 'margins',
 		{
 			id = 'icon',
@@ -18,19 +29,6 @@ local function build_button( icon, exec )
 			widget = wibox.widget.imagebox
 		}
 	}
-
-	button:buttons({
-		abutton({}, 1, function()
-			local margin = 1
-			while margin ~= 2 do
-				margin = margin + 1
-				button:set_margins(margin)
-			end
-		end,
-		function()
-			spawn.with_shell(exec)
-		end)
-	})
 
 	button:connect_signal('mouse::enter', function(self)
 		local margin = 0

@@ -31,7 +31,7 @@ naughty.config.icon_formats = {
 	'jpg',
 	'gif'
 }
-
+--[[
 naughty.connect_signal('request::display', function(n)
 	if n.app_name == '' then
 		n.app_name = 'System Notification'
@@ -94,3 +94,4 @@ naughty.connect_signal('request::display', function(n)
 		}
 	}
 end)
+]]

@@ -16,7 +16,7 @@ return wibox.widget {
 			layout = wibox.layout.flex.vertical,
 			require 'widget.network.wifi',
 			require 'widget.network.tethering',
-			require 'widget.network.bluetooth'
+			--require 'widget.network.bluetooth'
 		}
 	}
 }

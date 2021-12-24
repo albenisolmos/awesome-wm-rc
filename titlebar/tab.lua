@@ -2,6 +2,7 @@ local awful = require('awful')
 local wibox = require('wibox')
 local keygrabber = require('awful.keygrabber')
 local clickable = require('widget.clickable')
+local gtable = require('gears.table')
 
 local Tab = {}
 
@@ -25,11 +26,11 @@ local function tab_widget_new(c, witab)
 		}
 	}
 
-	widget:buttons({
+	widget:buttons(gtable(
 		awful.button({}, 1, function()
 			witab:focus_client(c)
 		end)
-	})
+	))
 
 	return widget
 end
@@ -76,7 +77,6 @@ local function tab_new(cli, is_first_tab)
 	local function on_new()
 		syncronize(cli, witab)
 		table.insert(witab.clients, cli)
-		_G.print('ONNEW')
 		witab:focus_client(cli)
 		witab.widget:add(tab_widget_new(cli, witab))
 	end

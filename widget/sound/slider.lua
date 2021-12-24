@@ -3,6 +3,7 @@ local button   = require('awful.button')
 local spawn     = require('awful.spawn')
 local beautiful = require('beautiful')
 local dpi       = beautiful.xresources.apply_dpi
+local gtable = require('gears.table')
 
 local slider = wibox.widget {
 	expand = 'none',
@@ -25,7 +26,7 @@ volume_slider:connect_signal('property::value', function(args)
 	awesome.emit_signal('widget::sound::small', args.value)
 end)
 
-volume_slider:buttons({
+volume_slider:buttons(gtable.join(
 	button({}, 4, nil, function()
 		if volume_slider:get_value() > 100 then
 			volume_slider:set_value(100)
@@ -33,7 +34,6 @@ volume_slider:buttons({
 		end
 		volume_slider:set_value(volume_slider:get_value() + 1)
 	end),
-
 	button({}, 5, nil, function()
 		if volume_slider:get_value() < 0 then
 			volume_slider:set_value(0)
@@ -41,7 +41,7 @@ volume_slider:buttons({
 		end
 		volume_slider:set_value(volume_slider:get_value() - 1)
 	end)
-})
+))
 
 local function update_slider()
 	spawn.easy_async_with_shell(

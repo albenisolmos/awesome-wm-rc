@@ -1,26 +1,23 @@
 local wibox  = require('wibox')
-local awful  = require('awful')
+local tag  = require('awful.tag')
+local widget = require('awful.widget')
+local gtable = require('gears.table')
+local button = require('awful.button')
 local applet = require 'widget.applet'
 
 return function(screen)
-	local taglist = applet(awful.widget.taglist {
+	local taglist = applet(widget.taglist {
 		screen = screen,
-		filter = awful.widget.taglist.filter.selected,
+		filter = widget.taglist.filter.selected,
 		widget_template = {
 			widget = wibox.widget.imagebox,
+			buttons = gtable.join(
+				button({ }, 1, function(t) tag.viewprev(t.screen) end),
+				button({ }, 3, function(t) tag.viewnext(t.screen) end)
+			),
 			id = 'icon_role'
 		}
 	})
-
-	taglist.buttons = {
-		awful.button({ }, 1, function(t) awful.tag.viewprev(t.screen) end),
-		awful.button({ }, 3, function(t) awful.tag.viewnext(t.screen) end),
-		awful.button({ modkey }, 3, function(t)
-			if client.focus then
-				client.focus:toggle_tag(t)
-			end
-		end)
-	}
 
 	return taglist
 end

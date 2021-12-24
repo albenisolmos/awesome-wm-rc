@@ -7,6 +7,16 @@ local hotkeys   = require('awful.hotkeys_popup')
 local dpi       = beautiful.xresources.apply_dpi
 local dir       = gears.filesystem.get_configuration_dir()
 
+if awesome.startup_errors then
+	naughty.notify {
+		urgency = "critical",
+		title   = "Oops, an error happened during startup!",
+		message = awesome.startup_errors,
+		app_name = 'Awesome',
+		icon = beautiful.awesome_icon
+	}
+end
+
 -- Preferences
 require('preferences')
 awful.util.shell = _G.preferences.shell
@@ -20,17 +30,15 @@ for _, command in pairs(_G.preferences.once_spawn) do
 	awful.spawn.once(command)
 end
 
+require 'signals'
 require 'titlebar'
 require 'notifications'
-require 'keys'
 require 'rule'
-require 'signals'
-local Tab = require 'titlebar.tab'
-Tab.init()
+--local Tab = require 'titlebar.tab'
+--Tab.init()
 
---
--- Wallpaper
---
+root.keys(require 'global-keys')
+
 screen.connect_signal("request::wallpaper", function(s)
 	if _G.preferences.wallpaper then
 		local wallpaper = _G.preferences.wallpaper
@@ -40,7 +48,7 @@ screen.connect_signal("request::wallpaper", function(s)
 		end
 
 		if wallpaper[0] == '#' then
-			gears.wallpaper.set(beautiful.wallpaper_color)
+			gears.wallpaper.set(wallpaper)
 		else
 			gears.wallpaper.maximized(wallpaper, s, true)
 		end
@@ -59,7 +67,7 @@ local function set_tag(name, screen, icon, layout, bool)
 		})
 end
 
-screen.connect_signal('request::desktop_decoration', function(s)
+awful.screen.connect_for_each_screen(function(s)
 	-- Tag
 	set_tag('1', s, beautiful.icon_taglist_home, awful.layout.suit.floating, true)
 	set_tag('2', s, beautiful.icon_taglist_development, awful.layout.suit.floating)
@@ -67,29 +75,19 @@ screen.connect_signal('request::desktop_decoration', function(s)
 	-- Desktop Components
 	s.exitscreen = require 'display.exit-screen'(s)
 	s.switcher   = require 'display.switcher'(s)
-	s.dock       = require 'display.dock'(s)
+	--s.dock       = require 'display.dock'(s)
 	s.runner     = require 'display.runner'(s)
-	s.hotcorners = require 'display.hot-corners'(s)
+	--s.hotcorners = require 'display.hot-corners'(s)
 	s.topbar     = require 'display.topbar'(s)
 	s.popup      = require 'display.popup'(s)
 end)
 
-naughty.connect_signal("request::display_error", function(message, startup)
-	naughty.notification {
-		urgency = "critical",
-		title   = "Oops, an error happened"..(startup and " during startup!" or "!"),
-		message = message,
-		app_name = 'Awesome',
-		icon = beautiful.awesome_icon
-	}
-end)
-
-root.buttons({ 
+root.buttons(gears.table.join(
 	awful.button({ }, 1, function()
 		awesome.emit_signal('popup::hide')
 		awesome.emit_signal('menu::hide')
 	end)
-})
+))
 
 --
 -- Extras Functions
@@ -161,7 +159,7 @@ end)
 
 --screen.emit_signal('tag::history::update')
 
-local last_coords = {x=0, y=0}
+local last_coords = { x = 0, y = 0}
 awful.mouse.resize.add_enter_callback(function(c)
 	last_coords.x = c.x
 	last_coords.y = c.y

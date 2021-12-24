@@ -26,7 +26,7 @@ return function(gestures_buttons, c)
 		{
 			widget = titlebar.widget.titlewidget(c),
 			align = 'left',
-			font = "Ubuntu 10.3",
+			font = 'Ubuntu 10.3',
 			buttons = gestures_buttons 
 		},
 		buttons

@@ -1,10 +1,11 @@
 local awful = require('awful')
 local shape = require('gears.shape')
+local gtable = require('gears.table')
 local beautiful = require('beautiful')
-local dpi       = beautiful.xresources.apply_dpi
-local ruled     = require('ruled')
+local dpi = beautiful.xresources.apply_dpi
+local rules = require('awful.rules')
 
-local clientbuttons = awful.util.table.join(
+local clientbuttons = gtable.join(
 	awful.button({ }, 1, function(c)
 		client.focus = c
 		c:raise()
@@ -12,16 +13,12 @@ local clientbuttons = awful.util.table.join(
 		awesome.emit_signal('popup::hide')
 	end),
 	awful.button({'Mod4'}, 1, function(c)
-		c:activate {
-			context = 'titlebar',
-			action = 'mouse_move'
-		}
+		c:emit_signal("request::activate", "mouse_click", {raise = true})
+		awful.mouse.client.move(c)
 	end),
 	awful.button({'Mod4'}, 3, function(c)
-		c:activate {
-			context = 'titlebar',
-			action = 'mouse_resize'
-		}
+		c:emit_signal("request::activate", "mouse_click", {raise = true})
+		awful.mouse.client.resize(c)
 	end)
 )
 
@@ -39,8 +36,8 @@ client.connect_signal('property::modal', function(c)
 	end
 end)
 
-ruled.client.connect_signal('request::rules', function()
-	ruled.client.append_rule {
+rules.rules = {
+	 {
 		id = 'global',
 		rule = { },
 		properties = {
@@ -49,7 +46,8 @@ ruled.client.connect_signal('request::rules', function()
 			screen       = awful.screen.preferred,
 			placement    = awful.placement.no_overlap+awful.placement.no_offscreen,
 			size_hints_honor  = false,
-			buttons = clientbuttons
+			buttons = clientbuttons,
+			keys = require('client-keys')
 		},
 		callback = function(c)
 			c.border_width = 0
@@ -57,9 +55,8 @@ ruled.client.connect_signal('request::rules', function()
 				awful.titlebar.hide(c)
 			end
 		end
-	}
-
-	ruled.client.append_rule {
+	},
+	 {
 		rule_any = { type = { 'normal', 'dialog'} },
 		properties = { titlebars_enabled = true },
 		callback = function(c)
@@ -67,18 +64,16 @@ ruled.client.connect_signal('request::rules', function()
 			c.border_width = beautiful.border_width
 			c.border_color = beautiful.border_normal
 		end
-	}
-
-	ruled.client.append_rule {
+	},
+	{
 		rule_any = { type = { 'normal', 'dialog', 'splash', 'dock'} },
 		callback = function(c)
 			c.shape = function(cr, w, h)
 				shape.rounded_rect(cr, w, h, dpi(8))
 			end
 		end
-	}
-
-	ruled.client.append_rule {
+	},
+	{
 		id = 'floating',
 		rule_any = {
 			instance = { 'DTA', 'copyq' },
@@ -86,10 +81,9 @@ ruled.client.connect_signal('request::rules', function()
 			role     = { 'AlarmWindow', 'ConfigManager', 'pop-up'}
 		},
 		properties = { floating = true }
-	}
-
+	},
 	-- Fix requests_no_titlebar for someone clients
-	ruled.client.append_rule {
+	{
 		rule_any = {
 			class = { "Xfce4-terminal"}
 		},
@@ -98,4 +92,4 @@ ruled.client.connect_signal('request::rules', function()
 			awful.titlebar.show(c)
 		end
 	}
-end)
+}

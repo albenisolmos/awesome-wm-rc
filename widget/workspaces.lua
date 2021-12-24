@@ -3,6 +3,18 @@ local wibox     = require("wibox")
 local beautiful = require("beautiful")
 local dpi       = beautiful.xresources.apply_dpi
 local shape     = require("gears.shape")
+local gtable = require('gears.table')
+
+local height = 400
+local width = 400
+local popup = {}
+
+local workspacesWidget = wibox.widget {
+	widget = wibox.widget.textbox,
+	text = 'Workspaces',
+	font = beautiful.font_bold,
+	valign = 'center'
+}
 
 local layoutlist = awful.widget.layoutlist {
 	base_layout = wibox.widget {
@@ -28,17 +40,6 @@ local layoutlist = awful.widget.layoutlist {
 		}
 	}
 }
-
-local height = 400
-local width = 400
-
-local popup = {}
-local workspacesWidget = wibox.widget {
-	widget = wibox.widget.textbox,
-	text = 'Workspaces',
-	font = beautiful.font_bold
-}
-workspacesWidget.valign = 'center'
 
 local createClientUI = function(client, tag)
 	local widget = wibox.widget {
@@ -73,17 +74,19 @@ local createClientUI = function(client, tag)
 		}
 	}
 
+	widget:buttons(gtable.join(
+			awful.button({ }, 1, function()
+				client:raise()
+				tag:view_only()
+				popup.visible = false
+			end)
+	))
+
 	widget:connect_signal("mouse::enter", function()
 		widget.bg = beautiful.bg_chips
 	end)
 	widget:connect_signal("mouse::leave", function()
 		widget.bg = beautiful.transparent
-	end)
-
-	widget:connect_signal("button::press", function()
-		client:raise()
-		tag:view_only()
-		popup.visible = false
 	end)
 
 	return widget

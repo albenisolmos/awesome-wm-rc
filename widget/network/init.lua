@@ -1,9 +1,10 @@
-local wibox      = require('wibox')
-local abutton    = require('awful.button')
-local shape      = require('gears.shape')
+local wibox = require('wibox')
+local abutton = require('awful.button')
+local shape = require('gears.shape')
 local beautiful  = require('beautiful')
 local multispawn = require('util.multispawn')
-local dpi        = beautiful.xresources.apply_dpi
+local dpi = beautiful.xresources.apply_dpi
+local gtable = require('gears.table')
 
 return function( icon, title )
 	local restore_subtitle = wibox.widget {
@@ -112,12 +113,12 @@ return function( icon, title )
 			end
 		}
 
-		background:buttons({
+		background:buttons(gtable.join(
 			abutton({}, 1,
 				function() network_timer:start() end,
 				function() network_timer:stop() end
 			)
-		})
+		))
 	end
 
 	return network

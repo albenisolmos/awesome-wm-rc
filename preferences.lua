@@ -23,12 +23,13 @@ _G.preferences  = {
 	manager_package = 'synaptic-pkexec',
 	manager_sound = 'pavucontrol',
 	shell = '/bin/sh',
+	modkey = 'Mod4',
 	cmd_vol_up = '',
 	cmd_vol_down = '',
-	cmd_play_player = '',
-	cmd_pause_player = '',
+	cmd_player_play = '',
+	cmd_player_pause = 'dbus-send --print-reply --dest=org.gnome.Lollypop /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause',
 	once_spawn = {
 		'picom',
-		'/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1',
+		--'/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1',
 	}
 }

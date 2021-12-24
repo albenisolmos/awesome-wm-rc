@@ -15,7 +15,7 @@ return function(screen)
 		y          = screen.geometry.y + 27,
 		bg         = beautiful.bg,
 		shape      = shape.rounded_rect,
-		widget     = {
+		widget     = wibox.widget {
 			layout = wibox.container.margin,
 			margins = dpi(10),
 			content

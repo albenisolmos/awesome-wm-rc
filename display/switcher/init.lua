@@ -195,18 +195,18 @@ return function(screen)
 	end
 
 	awful.keygrabber {
-		mask_modkeys = true,
+		--mask_modkeys = true,
 		root_keybindings = {
 			awful.key {
 				modifiers = {'Mod4'},
-				key       = 'Tab',
+				key = 'Tab',
 				on_press = function()
 					if #clients > 0 then
 						get_client_widget(index):focus(true)
 					end
 				end
 			}
-		},
+		},--[[
 		keybindings = {
 			awful.key {
 				modifiers = {'Mod4'},
@@ -228,9 +228,9 @@ return function(screen)
 				key       = 's',
 				on_press  = minimize_focused_client
 			}
-		},
-		stop_key       = 'Mod4',
-		stop_event     = 'release',
+		},]]
+		stop_key = 'Mod4',
+		stop_event = 'release',
 		start_callback = function()
 			if #clients < 1 then return end
 			switcher.visible = true
