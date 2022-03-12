@@ -1,11 +1,18 @@
-local awful     = require('awful')
-local gears     = require('gears')
-local shape     = require('gears.shape')
+require('awful.autofocus')
+require('util.table')
+local spawn = require('awful.spawn')
+local amouse = require('awful.mouse')
+local abutton = require('awful.button')
+local autil = require('awful.util')
+local atag = require('awful.tag')
+local ascreen = require('awful.screen')
+local alayout = require('awful.layout')
+local gtable = require('gears.table')
+local gwallpaper = require('gears.wallpaper')
 local beautiful = require('beautiful')
-local naughty   = require('naughty')
-local hotkeys   = require('awful.hotkeys_popup')
-local dpi       = beautiful.xresources.apply_dpi
-local dir       = gears.filesystem.get_configuration_dir()
+local naughty = require('naughty')
+local dir = require('gears.filesystem').get_configuration_dir()
+local hotcorner = require 'display.hot-corners'
 
 if awesome.startup_errors then
 	naughty.notify {
@@ -17,29 +24,29 @@ if awesome.startup_errors then
 	}
 end
 
--- Preferences
+-- Preferences --
 require('preferences')
-awful.util.shell = _G.preferences.shell
-awful.mouse.snap.edge_enabled = false
-awful.mouse.snap.client_enabled = false
+autil.shell = _G.preferences.shell
+amouse.snap.edge_enabled = false
+amouse.snap.client_enabled = false
 awesome.set_preferred_icon_size(64)
 
--- On init
-beautiful.init(dir .. '/themes/' .. _G.preferences.theme .. '.lua')
+-- On init --
+beautiful.init(string.format('%s/themes/%s.lua', dir,  _G.preferences.theme))
 for _, command in pairs(_G.preferences.once_spawn) do
-	awful.spawn.once(command)
+	spawn.once(command)
 end
-
-require 'signals'
-require 'titlebar'
-require 'notifications'
-require 'rule'
+require('client').init()
+require('signals')
+require('titlebar')
+require('notifications')
+require('rules')
+require('apps.dock')
 --local Tab = require 'titlebar.tab'
 --Tab.init()
+root.keys(require('global-keys'))
 
-root.keys(require 'global-keys')
-
-screen.connect_signal("request::wallpaper", function(s)
+local function set_wallpaper(s)
 	if _G.preferences.wallpaper then
 		local wallpaper = _G.preferences.wallpaper
 
@@ -48,15 +55,16 @@ screen.connect_signal("request::wallpaper", function(s)
 		end
 
 		if wallpaper[0] == '#' then
-			gears.wallpaper.set(wallpaper)
+			gwallpaper.set(wallpaper)
 		else
-			gears.wallpaper.maximized(wallpaper, s, true)
+			gwallpaper.maximized(wallpaper, s, true)
 		end
 	end
-end)
+end
+screen.connect_signal("property::geometry", set_wallpaper)
 
 local function set_tag(name, screen, icon, layout, bool)
-	return awful.tag.add(name, {
+	return atag.add(name, {
 			icon               = icon,
 			layout             = layout,
 			master_fill_policy = 'master_width_factor',
@@ -67,23 +75,31 @@ local function set_tag(name, screen, icon, layout, bool)
 		})
 end
 
-awful.screen.connect_for_each_screen(function(s)
-	-- Tag
-	set_tag('1', s, beautiful.icon_taglist_home, awful.layout.suit.floating, true)
-	set_tag('2', s, beautiful.icon_taglist_development, awful.layout.suit.floating)
-	set_tag('3', s, beautiful.icon_taglist_web_browser, awful.layout.suit.floating)
-	-- Desktop Components
-	s.exitscreen = require 'display.exit-screen'(s)
-	s.switcher   = require 'display.switcher'(s)
-	--s.dock       = require 'display.dock'(s)
-	s.runner     = require 'display.runner'(s)
-	--s.hotcorners = require 'display.hot-corners'(s)
-	s.topbar     = require 'display.topbar'(s)
-	s.popup      = require 'display.popup'(s)
+ascreen.connect_for_each_screen(function(s)
+	set_wallpaper(s)
+
+	set_tag('1', s, beautiful.icon_taglist_home, alayout.suit.floating, true)
+	set_tag('2', s, beautiful.icon_taglist_development, alayout.suit.floating)
+	set_tag('3', s, beautiful.icon_taglist_web_browser, alayout.suit.floating)
+
+	s.exitscreen = require('display.exit-screen')(s)
+	s.switcher   = require('display.switcher')(s)
+	s.runner     = require('display.runner')(s)
+	s.topbar     = require('display.topbar')(s)
+	s.popup      = require('display.popup')(s)
+
+	hotcorner {
+		screen = s,
+		position = 'bottom',
+		callback = function()
+			awesome.emit_signal('dock::partial_show')
+		end
+	}
 end)
 
-root.buttons(gears.table.join(
-	awful.button({ }, 1, function()
+
+root.buttons(gtable.join(
+	abutton({ }, 1, function()
 		awesome.emit_signal('popup::hide')
 		awesome.emit_signal('menu::hide')
 	end)
@@ -93,81 +109,20 @@ root.buttons(gears.table.join(
 -- Extras Functions
 --
 
-local function fullscreen_or_maximized(c)
-	if c.maximized then
-		c.shape = function(cr, w, h)
-			shape.rounded_rect(cr, w, h, dpi(8), dpi(8), 0, 0)
-		end
-		c.border_width = 0
-	elseif c.fullscreen then
-		c.shape = shape.rectangle
-		c.border_width = 0
-	else
-		c.shape = function(cr, w, h)
-			shape.rounded_rect(cr, w, h, dpi(8))
-		end
-	end
-end
-
-local function ontiled_client(c)
-	if c.floating then
-		c.shape = function(cr, w, h)
-			shape.rounded_rect(cr, w, h, dpi(8))
-		end
-	else
-		c.shape = shape.rectangle
-	end
-end
-
-local function ontiled_clients(t)
-	awesome.emit_signal('topbar::update')
-	for _, c in pairs(t:clients()) do
-		ontiled_client(c)
-	end
-end
-
---
--- Signals
---
--- c:set_xproperty('_NET_WM_STATE_FOCUSED')
-awesome.register_xproperty('_NET_WM_NAME', 'string')
-awesome.register_xproperty('_NET_WM_STATE_FOCUSED', 'boolean')
-client.connect_signal('property::active', function(c)
-	if c.active then
-		awful.spawn('xprop -set _NET_WM_STATE_FOCUSED true -id ' .. c.window)
-	else
-		awful.spawn('xprop -remove _NET_WM_STATE_FOCUSED -id ' .. c.window)
-	end
-end)
-
-tag.connect_signal('property::layout', ontiled_clients)
-
-client.connect_signal('property::fullscreen', fullscreen_or_maximized)
-client.connect_signal('property::maximized', fullscreen_or_maximized)
-client.connect_signal('property::floating', ontiled_client)
-client.connect_signal('request::manage', function(c)
-	if awesome.startup and
-		not c.size_hints.user_position
-		and not c.size_hints.program_position then
-		awful.placement.no_offscreen(c)
-	end
-end)
-
 awesome.connect_signal('hotkeys::show', function()
-	hotkeys.show_help()
+	require('awful.hotkeys_popup').show_help()
 end)
-
---screen.emit_signal('tag::history::update')
 
 local last_coords = { x = 0, y = 0}
-awful.mouse.resize.add_enter_callback(function(c)
+amouse.resize.add_enter_callback(function(c)
 	last_coords.x = c.x
 	last_coords.y = c.y
 end, 'mouse.move')
 
-awful.mouse.resize.add_leave_callback(function(c)
+amouse.resize.add_leave_callback(function(c)
 	if (not c.floating)
-		and awful.layout.get(c.screen) ~= awful.layout.suit.floating
+		and alayout.get(c.screen) ~= alayout.suit.floating
+		or c.type == 'dialog'
 		then
 		return
 	end
@@ -175,7 +130,7 @@ awful.mouse.resize.add_leave_callback(function(c)
 	local coords = mouse.coords()
 	local sg = c.screen.geometry
 	local sw = c.screen.workarea
-	local snap = awful.mouse.snap.default_distance
+	local snap = amouse.snap.default_distance
 
 	if coords.x > snap + sg.x
 		and coords.x < sg.x + sg.width - snap
@@ -198,7 +153,7 @@ awful.mouse.resize.add_leave_callback(function(c)
 		c.width = sg.width / 2
 		c.height = sg.height - sw.y
 	elseif coords.x >= sg.width - snap then
-		c.x = sg.width - c.width 
+		c.x = sg.width - c.width
 		c.y = sw.y
 		c.width = sg.width / 2
 		c.height = sg.height - sw.y
