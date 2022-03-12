@@ -1,15 +1,17 @@
-local awful      = require('awful')
-local abutton    = require('awful.button')
-local wibox      = require('wibox')
-local gshape     = require('gears.shape')
-local beautiful  = require('beautiful')
-local dpi        = beautiful.xresources.apply_dpi
-local clickable  = require 'widget.clickable'
-local applet     = require 'widget.applet'
+local amenu = require('awful.menu')
+local abutton = require('awful.button')
+local wibox = require('wibox')
+local gshape = require('gears.shape')
+local beautiful = require('beautiful')
+local dpi = beautiful.xresources.apply_dpi
+local gtable = require('gears.table')
+local awidget = require('awful.widget')
+local clickable = require('widget.clickable')
+local applet = require('widget.applet')
 
 local selected_client
 
-local options = awful.menu {
+local options = amenu {
 	items = {
 		{ 'Close', function()
 			selected_client:kill()
@@ -30,10 +32,10 @@ local options = awful.menu {
 }
 
 return function(screen)
-	local tasklist = awful.widget.tasklist {
+	local tasklist = awidget.tasklist {
 		screen = screen,
-		filter = awful.widget.tasklist.filter.currenttags,
-		buttons = {
+		filter = awidget.tasklist.filter.currenttags,
+		buttons = gtable.join(
 			abutton({ }, 1, function(c)
 				if c == client.focus then
 					c.minimized = true
@@ -57,7 +59,7 @@ return function(screen)
 				c.width = c.width - 5
 				c.height = c.height - 5
 			end)
-		},
+		),
 		style = {
 			shape_focus = function(cr, width, height, radius) 
 				gshape.rounded_rect(cr, width, height, 3)
@@ -95,18 +97,14 @@ return function(screen)
 	}
 	tasklist.visible = true 
 
-	local tasklist_applet = applet(
-		wibox.widget.imagebox(beautiful.icon_list),
-		function()
-			tasklist.visible = not tasklist.visible
-			tasklist:emit_signal('widget::redraw_needed')
-		end
-	)
-
 	local tasklist_layout = wibox.widget {
 		layout = wibox.layout.fixed.horizontal,
 		fill_space = true,
-		tasklist_applet,
+		applet(wibox.widget.imagebox(beautiful.icon_list),
+			function()
+				tasklist.visible = not tasklist.visible
+				tasklist:emit_signal('widget::redraw_needed')
+			end),
 		tasklist,
 		nil
 	}
