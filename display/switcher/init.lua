@@ -1,6 +1,7 @@
 local unpack = table.unpack or unpack
 
-local awful = require('awful')
+local ascreen = require('awful.screen')
+local akeygrabber = require('awful.keygrabber')
 local wibox = require('wibox')
 local shape = require('gears.shape')
 local beautiful = require('beautiful')
@@ -19,7 +20,7 @@ local function get_client_widget(idx)
 end
 
 local function client_can_be_shown(c)
-	 return c.minimized or c.skip_taskbar or c.hidden and false or true
+	 return not (c.minimized or c.skip_taskbar or c.hidden)
 end
 
 local function filter_clients(clis)
@@ -33,7 +34,7 @@ local function filter_clients(clis)
 end
 
 local function update_clients()
-	local tag = awful.screen.focused().selected_tag
+	local tag = ascreen.focused().selected_tag
 	clients = filter_clients(tag:clients())
 end
 
@@ -194,41 +195,21 @@ return function(screen)
 		self.y = (screen.geometry.height - self.height)/2
 	end
 
-	awful.keygrabber {
-		--mask_modkeys = true,
+	akeygrabber {
 		root_keybindings = {
-			awful.key {
-				modifiers = {'Mod4'},
-				key = 'Tab',
-				on_press = function()
+			{{'Mod4'}, 'Tab', function()
 					if #clients > 0 then
 						get_client_widget(index):focus(true)
 					end
 				end
 			}
-		},--[[
+		},
 		keybindings = {
-			awful.key {
-				modifiers = {'Mod4'},
-				key       = 'Tab',
-				on_press  = focus_next_client
-			},
-			awful.key {
-				modifiers = {'Mod4', 'Shift'},
-				key       = 'Tab',
-				on_press  = focus_previous_client
-			},
-			awful.key {
-				modifiers = {'Mod4'},
-				key       = 'x',
-				on_press  = close_focused_client
-			},
-			awful.key {
-				modifiers = {'Mod4'},
-				key       = 's',
-				on_press  = minimize_focused_client
-			}
-		},]]
+				{{'Mod4'}, 'Tab', focus_next_client},
+				{{'Mod4', 'Shift'}, 'Tab', focus_previous_client},
+				{{'Mod4'}, 'x', close_focused_client},
+				{{'Mod4'}, 's', minimize_focused_client}
+		},
 		stop_key = 'Mod4',
 		stop_event = 'release',
 		start_callback = function()
@@ -238,8 +219,11 @@ return function(screen)
 		stop_callback = function()
 			switcher.visible = false
 			if #clients <= 1 then return end
+
 			local children = clients_box.children
-			children[index].client:activate { raise = true }
+			local c = children[index].client
+			client.focus = c
+			c:raise()
 			children[index]:focus(false)
 		end,
 		export_keybindings = false
