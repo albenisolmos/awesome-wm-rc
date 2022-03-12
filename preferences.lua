@@ -1,9 +1,10 @@
-local dir = require('gears').filesystem.get_configuration_dir()
+local dir = require('gears.filesystem').get_configuration_dir()
+local dpi = require('beautiful').xresources.apply_dpi
 
 _G.preferences  = {
 	theme = 'dark',
 	titlebar_style = 'windows',
-	wallpaper = dir ..'themes/wallpaper.jpg',
+	wallpaper = '/home/olmos/Pictures/wallpapers/andrew-neel-jtsW--Z6bFw-unsplash.jpg',
 	icon_user  = dir .. 'icon-user.png',
 	dock = true,
 	dock_autohide = true,
@@ -13,7 +14,9 @@ _G.preferences  = {
 	topbar_hide_maximized = false,
 	topbar_autohide = false,
 	desktop_icon = false,
-	client_rounded_corners = 8,
+	client_rounded_corners = 15,
+	client_border_width = dpi(1),
+	client_rounded_corner_on_maximized = true,
 	switcher_preview = false,
 	web_browser = 'firefox',
 	music_player = 'lollypop',
@@ -30,6 +33,9 @@ _G.preferences  = {
 	cmd_player_pause = 'dbus-send --print-reply --dest=org.gnome.Lollypop /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause',
 	once_spawn = {
 		'picom',
-		--'/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1',
+		'xset r rate 200 25',
+		'bash ~/Dev/scripts/capslock',
+		'capslock',
+		'/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1'
 	}
 }
