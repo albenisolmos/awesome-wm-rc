@@ -14,7 +14,8 @@ local slider = wibox.widget {
 		widget              = wibox.widget.slider,
 		id                  = 'vol_slider',
 		value               = 80,
-		maximum             = 100
+		maximum             = 100,
+		color = beautiful.progressbar_fg
 	},
 	nil
 }
