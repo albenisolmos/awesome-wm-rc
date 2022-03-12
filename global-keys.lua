@@ -1,9 +1,8 @@
 local spawn = require('awful.spawn')
 local key = require('awful.key')
-local button = require('awful.button')
-local mouse = require('awful.mouse')
-local client = require('awful.client')
+local aclient = require('awful.client')
 local tag = require('awful.tag')
+local ascreen = require('awful.screen')
 local naughty = require('naughty')
 local gtable = require('gears.table')
 
@@ -81,7 +80,7 @@ local global_keys = gtable.join(
 		spawn(_G.preferences.launcher)
 	end, { description = 'Apps launcher', group = 'System' }),
 	key({ modkey, 'Control' }, 's', function()
-		local c = client.restore()
+		local c = aclient.restore()
 		if c then
 			c:emit_signal("request::activate", "key.unminimized", {raise = true})
 		end
@@ -114,34 +113,56 @@ local global_keys = gtable.join(
 	end, { description = 'Increase spacing between clients', group = 'Tag'})
 )
 
---[[
-	key {
-		modifiers   = { modkey },
-		keygroup    = 'numrow',
-		description = 'only view tag',
-		group       = 'Tag',
-		on_press    = function (index)
-			local screen = screen.focused()
-			local tag = screen.tags[index]
-			if tag then
-				tag:view_only()
-			end
-		end,
-	},
-	key {
-		modifiers = { modkey, 'Control' },
-		keygroup    = 'numrow',
-		description = 'Move focused client to tag',
-		group       = 'Tag',
-		on_press    = function(index)
-			if client.focus then
-				local tag = client.focus.screen.tags[index]
-				if tag then
-					client.focus:move_to_tag(tag)
+function table.filter(tbl, fn)
+	local result = {}
+
+	for i, el in pairs(tbl) do
+		if fn(el, i) then
+			table.insert(result, el)
+		end
+	end
+
+	return result
+end
+
+for i=1, 9 do
+	global_keys = gtable.join(global_keys,
+		key({ modkey, 'Shift' }, '#' .. i + 9,
+			function()
+				local tag = ascreen.focused().selected_tag
+				local clients = table.filter(tag:clients(), function(el)
+					return not el.skip_taskbar
+				end)
+
+				local cli = clients[i]
+				if cli then
+					client.focus = cli
+					cli:raise()
 				end
-			end
-		end,
-	},
-]]
-_G.print(global_keys)
+			end, { description = 'Select client by index', group = 'Client'}),
+
+		key({ modkey }, '#' .. i + 9,
+			function()
+				local screen = ascreen.focused()
+				local tag = screen.tags[i]
+				if tag then
+					tag:view_only()
+				end
+			end, { description = 'only view tag', group = 'Tag'}),
+
+		key({ modkey, 'Control' }, '#' .. i + 9,
+			function()
+				if client.focus then
+					local c = client.focus
+					local tag = c.screen.tags[i]
+					--local screen = ascreen.focused()
+					--local tag = screen.tags[i]
+					if tag then
+						client.focus:move_to_tag(tag)
+					end
+				end
+			end, {description = 'Move focused client to tag', group = 'Tag'})
+		)
+end
+
 return global_keys
