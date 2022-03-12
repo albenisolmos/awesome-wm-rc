@@ -1,65 +1,79 @@
 local ascreen   = require('awful.screen')
 local gtimer     = require('gears.timer')
+local gshape = require('gears.shape')
 local wibox     = require('wibox')
 local beautiful = require('beautiful')
 local dpi       = beautiful.xresources.apply_dpi
 local partial_show = false
 local height = dpi(21)
-local increased_height = dpi(26)
+local increased_height = height + 20 + dpi(_G.preferences.client_rounded_corners)
+local widget = require('widget')
 
 return function(screen)
 	local topbar = wibox({
-		screen = screen,
-		type = 'dock',
-		ontop = false,
-		visible = true,
-		height = height,
-		width = screen.geometry.width,
-		bg = beautiful.transparent,
-		widget = wibox.widget {
-			layout = wibox.layout.fixed.vertical,
-			{
-				layout = wibox.layout.align.horizontal,
+			screen = screen,
+			type = 'dock',
+			ontop = false,
+			visible = true,
+			height = height,
+			width = screen.geometry.width,
+			bg = beautiful.transparent,
+			widget = wibox.widget {
+				layout = wibox.container.margin,
+				id = 'margin',
 				{
 					layout = wibox.layout.align.horizontal,
-					require 'widget.user',
-					require 'widget.workspaces',
-				},
-				require 'widget.tasklist'(screen),
-				{
-					layout = wibox.layout.fixed.horizontal,
-					require 'widget.systray',
-					require 'widget.taglist'(screen),
-					require 'widget.sound.applet',
-					require 'widget.hardware-monitor.applet',
-					require 'widget.dollar.applet',
-					require 'widget.center.applet',
-					require 'widget.clock.applet'
+					{
+						layout = wibox.layout.align.horizontal,
+						require 'widget.user',
+						widget {
+							margin= 2,
+							padding = 5,
+							require 'widget.workspaces'
+						}
+					},
+					require 'widget.tasklist'(screen),
+					{
+						layout = wibox.layout.fixed.horizontal,
+						require 'widget.systray',
+						require 'widget.taglist'(screen),
+						require 'widget.sound.applet',
+						require 'widget.hardware-monitor.applet',
+						require 'widget.dollar.applet',
+						require 'widget.clock.applet'
+					}
 				}
-			},
-			{
-				layout = wibox.container.margin,
-				bottom = dpi(5),
-				id = 'margin'
 			}
-		}
-	})
+		})
 
-	topbar:struts({ top = topbar.height })
+	topbar:struts({ top = 0 })
+	local margin = topbar.widget:get_children_by_id('margin')[1]
 
 	local function topbar_reset_size()
-		return
-		--[[if topbar.height ~= height then
+		--return
+		if topbar.height ~= height then
 			topbar.height = height
-			topbar:get_children_by_id('margin')[0].bottom = 0
-		end]]
+			topbar:struts({ top = height })
+			margin.bottom = 0
+			topbar.shape = gshape.rectangle
+		end
+	end
+
+	local function topbar_shape(cr, w, h)
+		--local degrees = math.pi / 180.0;
+		--cr:arc(w - radius, radius, radius, -90 * degrees, 0 * degrees)
+		--cr:arc_negative(w - radius, h - radius , radius, 0 * degrees, -90 * degrees)
+		--cr:arc_negative(radius, h - radius, radius, -90 * degrees, 180 * degrees)
+		--cr:arc(radius, radius, radius, 180 * degrees, 270 * degrees)
 	end
 
 	local function topbar_inc_size()
-		--[[if topbar.height ~= increased_height then
-			topbar.height = increased_height
-			_G.print(topbar:get_children_by_id('margin')[0])
-		end]]
+		--if topbar.height ~= increased_height then
+		--	margin.bottom = 35
+		--	topbar.height = increased_height
+		--	topbar:struts({ top = increased_height - radius - 20 })
+		--	topbar.shape = topbar_shape
+		--end
 	end
 
 	function topbar:hide()
@@ -113,9 +127,9 @@ return function(screen)
 		elseif c.maximized
 			or (not c.floating and not c.minimized)
 			and c.skip_taskbar then
-			topbar.bg = beautiful.titlebar_bg
-			topbar_inc_size()
+			topbar.bg = beautiful.topbar_bg
 			topbar:show()
+			topbar_inc_size()
 			return true
 		end
 	end
