@@ -1,12 +1,12 @@
 local shape = require('gears.shape')
-local dir   = require('gears.filesystem').get_configuration_dir() .. '/themes/'
-local dpi   = require('beautiful').xresources.apply_dpi
+local dir = require('gears.filesystem').get_configuration_dir() .. '/themes/'
+local dpi = require('beautiful').xresources.apply_dpi
 
-local theme          = {}
+local theme = {}
 local titlebar_icon
-local layout_icons   = dir .. 'dark_icons/layouts/'
+local layout_icons  = dir .. 'dark_icons/layouts/'
 local icon_dir = dir .. 'dark_icons/'
-local default_font   = 'SF Pro Display '
+local default_font = 'SF Pro Display '
 
 -- Variables
 theme.font        = default_font .. ' 10'
@@ -14,26 +14,16 @@ theme.font_medium = default_font .. 'Regular 12'
 theme.font_small  = default_font .. 'Regular 10'
 theme.font_bold   = default_font .. 'Semi-Bold 10'
 theme.font_big    = default_font .. 'Regular 15'
-theme.wallpaper       = dir .. 'wallpaper.jpg'
-theme.wallpaper_color = '#222225'
-theme.wallpaper_type  = 'image'
 theme.icon_user = dir .. 'icon-user.png'
 theme.dock_use = true
 theme.dock_hide = true
 theme.dock_bg_solid = false
 theme.topbar_tasklist = false
 theme.topbar_bg_solid = false
+theme.topbar_bg = '#21212150'
 theme.topbar_hide_maximized  = false
-theme.desktop_icon = false
-theme.client_rounded_corners = 8
 theme.switcher_preview = false
-theme.titlebar_style = 'windows'
 theme.useless_gap = 0
-theme.switcher_preview = false
-theme.dock_use = false
-theme.dock = false
-theme.dock_autohide = false
-theme.desktop_icon = false
 theme.bg = '#15151595'
 theme.bg_card = '#00000020'
 theme.bg_chips = '#FFFFFF15'
@@ -43,7 +33,7 @@ theme.bg_urgent = '#ff0000'
 theme.bg_highlight = '#228ae7d8'
 theme.transparent = '#00000000'
 theme.border_width = dpi(1)
-theme.border_normal = '#252525'
+theme.border_normal = '#303030'
 theme.border_focus  = '#252525'
 theme.border_marked = '#91231c'
 theme.fg_normal = '#D8D8D8'
@@ -156,41 +146,27 @@ theme.snap_bg = theme.bg_hi
 theme.snap_border_width = dpi(2)
 
 -- Define the images to load
-if theme.titlebar_style == 'windows' then
+if _G.preferences.titlebar_style == 'windows' then
 	titlebar_icon = dir .. 'dark_icons/titlebar/windows/'
-	theme.titlebar_close_button_normal                   = titlebar_icon .. 'close-unfocus.svg'
-	theme.titlebar_close_button_focus                    = titlebar_icon .. 'close.svg'
-	theme.titlebar_close_button_focus_hover              = titlebar_icon .. 'close_hover.svg'
-	theme.titlebar_close_button_focus_press              = titlebar_icon .. 'close_press.svg'
-	theme.titlebar_minimize_button_normal                = titlebar_icon .. 'minimize-unfocus.svg'
-	theme.titlebar_minimize_button_focus                 = titlebar_icon .. 'minimize.svg'
-	theme.titlebar_minimize_button_focus_hover           = titlebar_icon .. 'minimize_hover.svg'
-	theme.titlebar_minimize_button_focus_press           = titlebar_icon .. 'minimize_press.svg'
-	theme.titlebar_maximized_button_focus_active         = titlebar_icon .. 'maximize.svg'
-	theme.titlebar_maximized_button_focus_active_hover   = titlebar_icon .. 'maximize_hover.svg'
-	theme.titlebar_maximized_button_normal_inactive      = titlebar_icon .. 'maximize-unfocus.svg'
-	theme.titlebar_maximized_button_normal_active        = titlebar_icon .. 'maximize-unfocus.svg'
-	theme.titlebar_maximized_button_focus_inactive       = titlebar_icon .. 'maximize.svg'
-	theme.titlebar_maximized_button_focus_inactive_hover = titlebar_icon .. 'maximize_hover.svg'
-	theme.titlebar_maximized_button_focus_inactive_press = titlebar_icon .. 'maximize_press.svg'
-	theme.titlebar_maximized_button_focus_active_press   = titlebar_icon .. 'maximize_press.svg'
-elseif theme.titlebar_style == 'macos' then
+elseif _G.preferences.titlebar_style == 'macos' then
 	titlebar_icon = dir .. 'dark_icons/titlebar/macos/'
-	theme.titlebar_close_button_normal                   = titlebar_icon .. 'inactive.png'
-	theme.titlebar_close_button_focus                    = titlebar_icon .. 'close_focus.png'
-	theme.titlebar_close_button_focus_hover              = titlebar_icon .. 'close_hover.png'
-	theme.titlebar_close_button_focus_press              = titlebar_icon .. 'close_focus.png'
-	theme.titlebar_minimize_button_normal                = titlebar_icon .. 'inactive.png'
-	theme.titlebar_minimize_button_focus                 = titlebar_icon .. 'minimize_focus.png'
-	theme.titlebar_minimize_button_focus_hover           = titlebar_icon .. 'minimize_focus_hover.png'
-	theme.titlebar_minimize_button_focus_press           = titlebar_icon .. 'minimize_focus.png'
-	theme.titlebar_maximized_button_focus_active         = titlebar_icon .. 'maximize_focus.png'
-	theme.titlebar_maximized_button_focus_active_hover   = titlebar_icon .. 'maximize_focus_hover.png'
-	theme.titlebar_maximized_button_normal_inactive      = titlebar_icon .. 'inactive.png'
-	theme.titlebar_maximized_button_focus_inactive       = titlebar_icon .. 'maximize_focus.png'
-	theme.titlebar_maximized_button_focus_inactive_hover = titlebar_icon .. 'maximize_focus_hover.png'
-	theme.titlebar_maximized_button_focus_inactive_press = titlebar_icon .. 'maximize_focus.png'
 end
+theme.titlebar_close_button_normal                   = titlebar_icon .. 'close-unfocus.svg'
+theme.titlebar_close_button_focus                    = titlebar_icon .. 'close.svg'
+theme.titlebar_close_button_focus_hover              = titlebar_icon .. 'close_hover.svg'
+theme.titlebar_close_button_focus_press              = titlebar_icon .. 'close_press.svg'
+theme.titlebar_minimize_button_normal                = titlebar_icon .. 'minimize-unfocus.svg'
+theme.titlebar_minimize_button_focus                 = titlebar_icon .. 'minimize.svg'
+theme.titlebar_minimize_button_focus_hover           = titlebar_icon .. 'minimize_hover.svg'
+theme.titlebar_minimize_button_focus_press           = titlebar_icon .. 'minimize_press.svg'
+theme.titlebar_maximized_button_focus_active         = titlebar_icon .. 'maximize.svg'
+theme.titlebar_maximized_button_focus_active_hover   = titlebar_icon .. 'maximize_hover.svg'
+theme.titlebar_maximized_button_normal_inactive      = titlebar_icon .. 'maximize-unfocus.svg'
+theme.titlebar_maximized_button_normal_active        = titlebar_icon .. 'maximize-unfocus.svg'
+theme.titlebar_maximized_button_focus_inactive       = titlebar_icon .. 'maximize.svg'
+theme.titlebar_maximized_button_focus_inactive_hover = titlebar_icon .. 'maximize_hover.svg'
+theme.titlebar_maximized_button_focus_inactive_press = titlebar_icon .. 'maximize_press.svg'
+theme.titlebar_maximized_button_focus_active_press   = titlebar_icon .. 'maximize_press.svg'
 
 -- Icon Layouts
 theme.layout_fairh      = layout_icons .. 'fairhw.png'
