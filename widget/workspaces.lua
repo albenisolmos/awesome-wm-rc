@@ -4,9 +4,8 @@ local beautiful = require("beautiful")
 local dpi       = beautiful.xresources.apply_dpi
 local shape     = require("gears.shape")
 local gtable = require('gears.table')
+local uclient = require('util.client')
 
-local height = 400
-local width = 400
 local popup = {}
 
 local workspacesWidget = wibox.widget {
@@ -131,14 +130,14 @@ local createSettingsUI = function()
 
 	local taskManager = wibox.widget.textbox('Task manager...')
 	taskManager:connect_signal("button::press", function() 
-		awful.spawn("lxtask") 
+		awful.spawn("lxtask")
 		popup.visible = false
 	end)
 
 	return wibox.widget {
-		newWorkspace, 
-		taskManager, 
-		spacing = 7, 
+		newWorkspace,
+		taskManager,
+		spacing = 7,
 		layout = wibox.layout.fixed.vertical
 	}
 end
@@ -150,6 +149,9 @@ local updateWidget = function()
 	workspacesLayout:reset(workspacesLayout)
 	for _, tag in pairs(root.tags()) do
 		local clients = tag:clients()
+		clients = table.filter(clients, uclient.displayable_clients)
+		--printn(clients)
+
 		if #clients > 0 then
 			workspacesLayout:add(createTagUI(tag, clients))
 		end
