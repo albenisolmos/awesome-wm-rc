@@ -14,15 +14,7 @@ local naughty = require('naughty')
 local dir = require('gears.filesystem').get_configuration_dir()
 local hotcorner = require 'display.hot-corners'
 
-if awesome.startup_errors then
-	naughty.notify {
-		urgency = "critical",
-		title   = "Oops, an error happened during startup!",
-		message = awesome.startup_errors,
-		app_name = 'Awesome',
-		icon = beautiful.awesome_icon
-	}
-end
+require('error')
 
 -- Preferences --
 require('preferences')
