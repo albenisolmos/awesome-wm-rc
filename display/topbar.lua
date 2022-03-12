@@ -25,7 +25,6 @@ return function(screen)
 					layout = wibox.layout.align.horizontal,
 					{
 						layout = wibox.layout.align.horizontal,
-						require 'widget.user',
 						widget {
 							margin= 2,
 							padding = 5,
