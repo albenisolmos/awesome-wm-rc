@@ -3,7 +3,7 @@ local spawn   = require('awful.spawn')
 local naughty = require('naughty')
 local button = require('awful.button')
 
-function _G.print(msg)
+function _G.printn(msg)
 	naughty.notify {
 		title = 'Test',
 		text = tostring(msg)
@@ -25,6 +25,11 @@ client.connect_signal('request::default_mousebindings', function()
 	})
 end)
 
+awesome.connect_signal('sound::level', function(level)
+	spawn.with_shell('pactl set-sink-volume @DEFAULT_SINK@ ' .. level,
+	false)
+end)
+
 local wifi_updater = gtimer {
 	timeout = 5,
 	autostart = false,
@@ -39,27 +44,6 @@ local wifi_updater = gtimer {
 	end
 }
 
-do
-    local in_error = false
-    awesome.connect_signal("debug::error", function(err)
-        if in_error then return end
-        in_error = true
-
-		naughty.notify({
-				preset = naughty.config.presets.critical,
-				title = "Oops, an error happened!",
-				text = tostring(err)
-			})
-
-		in_error = false
-    end)
-end
-
-awesome.connect_signal('sound::level', function(level)
-	spawn.with_shell('pactl set-sink-volume @DEFAULT_SINK@ ' .. level,
-	false)
-end)
-
 awesome.connect_signal('wifi::status', function(status)
 	if status then
 		status = 'on'
@@ -71,13 +55,6 @@ awesome.connect_signal('wifi::status', function(status)
 	spawn.with_shell('nmcli radio wifi ' .. status)
 end)
 
---[[
-client.connect_signal('request::unmanage', function()
-	awesome.emit_signal('topbar::update')
-	awesome.emit_signal('dock::update')
-end)
-]]
-
 screen.connect_signal('tag::history::update', function()
 	awesome.emit_signal('topbar::update')
 	awesome.emit_signal('popup::hide')
@@ -85,6 +62,19 @@ screen.connect_signal('tag::history::update', function()
 	awesome.emit_signal('dock::update')
 end)
 
+client.connect_signal('request::unmanage', function(c)
+	if c.modal or c.transient_for then
+		awesome.emit_signal('modal::hide')
+	end
+end)
+
+client.connect_signal('property::modal', function(c)
+	if c.modal then
+		awesome.emit_signal('modal::show', c)
+	else
+		awesome.emit_signal('modal::hide')
+	end
+end)
 --local update_hardwareMonitor = gtimer {
 --	timeout = 5,
 --	autostart = false,
