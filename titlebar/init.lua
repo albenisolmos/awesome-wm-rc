@@ -1,5 +1,4 @@
 local awful = require('awful')
-local wibox = require('wibox')
 local dpi = require('beautiful').xresources.apply_dpi
 local gtable = require('gears.table')
 
