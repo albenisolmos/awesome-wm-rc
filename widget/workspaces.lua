@@ -1,10 +1,12 @@
-local awful     = require("awful")
+local awidget = require('awful.widget')
+local spawn = require('awful.spawn')
+local abutton = require('awful.button')
 local wibox     = require("wibox")
 local beautiful = require("beautiful")
 local dpi       = beautiful.xresources.apply_dpi
 local shape     = require("gears.shape")
 local gtable = require('gears.table')
-local uclient = require('util.client')
+local uclient = require('utils.client')
 
 local popup = {}
 
@@ -15,7 +17,7 @@ local workspacesWidget = wibox.widget {
 	valign = 'center'
 }
 
-local layoutlist = awful.widget.layoutlist {
+local layoutlist = awidget.layoutlist {
 	base_layout = wibox.widget {
 		layout          = wibox.layout.grid.vertical,
 		spacing         = 10,
@@ -74,7 +76,7 @@ local createClientUI = function(client, tag)
 	}
 
 	widget:buttons(gtable.join(
-			awful.button({ }, 1, function()
+			abutton({ }, 1, function()
 				client:raise()
 				tag:view_only()
 				popup.visible = false
@@ -130,7 +132,7 @@ local createSettingsUI = function()
 
 	local taskManager = wibox.widget.textbox('Task manager...')
 	taskManager:connect_signal("button::press", function() 
-		awful.spawn("lxtask")
+		spawn("lxtask")
 		popup.visible = false
 	end)
 
@@ -149,8 +151,7 @@ local updateWidget = function()
 	workspacesLayout:reset(workspacesLayout)
 	for _, tag in pairs(root.tags()) do
 		local clients = tag:clients()
-		clients = table.filter(clients, uclient.displayable_clients)
-		--printn(clients)
+		clients = table.filter(clients, uclient.is_displayable)
 
 		if #clients > 0 then
 			workspacesLayout:add(createTagUI(tag, clients))

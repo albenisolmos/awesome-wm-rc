@@ -1,15 +1,14 @@
-local awful     = require('awful')
-
-local wibox     = require('wibox')
-local spawn     = require('awful.spawn')
-local button    = require('awful.button')
-local shape     = require('gears.shape')
+local wibox = require('wibox')
+local spawn = require('awful.spawn')
+local button = require('awful.button')
+local shape = require('gears.shape')
 local beautiful = require('beautiful')
-local utils     = require('menubar.utils')
-local dpi       = beautiful.xresources.apply_dpi
-local naughty   = require('naughty')
+local utils = require('menubar.utils')
+local amenu = require('awful.menu')
+local dpi = beautiful.xresources.apply_dpi
+local naughty = require('naughty')
 
-local home      = os.getenv('HOME')
+local home = os.getenv('HOME')
 local size_icon = '48x48'
 local apps_path = '/usr/share/applications'
 local icon_path = '/usr/share/icons/Papirus/' .. size_icon .. '/mimetypes'
@@ -24,7 +23,7 @@ local grid = wibox.widget {
 	forced_num_cols = 20,
 }
 
-local item_menu = awful.menu({
+local item_menu = amenu({
 	items = {
 		{ 'Open', function() return end },
 		{ 'Rename' , function() return end },

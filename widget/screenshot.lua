@@ -1,8 +1,8 @@
-local awful     = require('awful')
-local shape     = require('gears.shape')
-local wibox     = require('wibox')
+local spawn = require('awful.spawn')
+local shape = require('gears.shape')
+local wibox = require('wibox')
 local beautiful = require('beautiful')
-local dpi       = beautiful.xresources.apply_dpi
+local dpi = beautiful.xresources.apply_dpi
 
 local widgetScreenshot = wibox.widget
 {
@@ -47,7 +47,7 @@ widgetScreenshot:get_children_by_id('button')[1]:connect_signal(
 	for s in screen do
 		s.controlCenter.visible = false
 	end
-	awful.spawn('scrot -s')
+	spawn('scrot -s')
 	widgetScreenshot:get_children_by_id('id_icon')[1]:set_image(beautiful.icon_desktop)
 end)
 

@@ -4,7 +4,7 @@ local dpi = require('beautiful').xresources.apply_dpi
 _G.preferences  = {
 	theme = 'dark',
 	titlebar_style = 'windows',
-	wallpaper = '/home/olmos/Pictures/wallpapers/andrew-neel-jtsW--Z6bFw-unsplash.jpg',
+	wallpaper = dir .. 'themes/wallpaper.jpg',
 	icon_user  = dir .. 'icon-user.png',
 	dock = true,
 	dock_autohide = true,
@@ -33,9 +33,6 @@ _G.preferences  = {
 	cmd_player_pause = 'dbus-send --print-reply --dest=org.gnome.Lollypop /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause',
 	once_spawn = {
 		'picom',
-		'xset r rate 200 25',
-		'bash ~/Dev/scripts/capslock',
-		'capslock',
 		'/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1'
 	}
 }

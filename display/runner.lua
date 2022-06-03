@@ -1,9 +1,9 @@
-local awful     = require('awful')
-local spawn     = require('awful.spawn')
-local wibox     = require('wibox')
-local shape     = require('gears.shape')
+local spawn = require('awful.spawn')
+local aprompt = require('awful.prompt')
+local wibox = require('wibox')
+local shape = require('gears.shape')
 local beautiful = require('beautiful')
-local dpi       = beautiful.xresources.apply_dpi
+local dpi = beautiful.xresources.apply_dpi
 
 local textbox  = wibox.widget.textbox()
 

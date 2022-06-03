@@ -1,4 +1,4 @@
-local awful = require('awful')
+local spawn = require('awful.spawn')
 local gears = require('gears')
 
 local function update_backdrop(w, c)
@@ -53,4 +53,4 @@ end
 client.connect_signal("manage", grab_first_client)
 
 -- Just for fun, test this with xeyes
-awful.spawn({"xeyes"})
+spawn({"xeyes"})

@@ -5,7 +5,7 @@ local timer = require('gears.timer')
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
 
-local animate    = require 'util.animate'
+local animate = require 'utils.animate'
 local partial_show
 local dock = {}
 

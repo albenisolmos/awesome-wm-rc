@@ -26,4 +26,3 @@ if awesome.startup_errors then
 		icon = beautiful.awesome_icon
 	}
 end
-

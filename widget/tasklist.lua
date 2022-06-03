@@ -8,6 +8,7 @@ local gtable = require('gears.table')
 local awidget = require('awful.widget')
 local clickable = require('widget.clickable')
 local applet = require('widget.applet')
+local uclient = require('utils.client')
 
 local selected_client
 
@@ -33,6 +34,8 @@ local options = amenu {
 
 return function(screen)
 	local tasklist = awidget.tasklist {
+		source = uclient.get_clients,
+		base_widget = wibox.layout.fixed.horizontal,
 		screen = screen,
 		filter = awidget.tasklist.filter.currenttags,
 		buttons = gtable.join(
@@ -47,6 +50,9 @@ return function(screen)
 					client.focus = c
 					c:raise()
 				end
+			end),
+			abutton({}, 2, function(c)
+				c:kill()
 			end),
 			abutton({ }, 3, function()
 				options:toggle()

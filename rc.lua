@@ -1,5 +1,7 @@
 require('awful.autofocus')
-require('util.table')
+require('awful.ewmh')
+require('utils.table')
+
 local spawn = require('awful.spawn')
 local amouse = require('awful.mouse')
 local abutton = require('awful.button')
@@ -12,7 +14,7 @@ local gwallpaper = require('gears.wallpaper')
 local beautiful = require('beautiful')
 local naughty = require('naughty')
 local dir = require('gears.filesystem').get_configuration_dir()
-local hotcorner = require 'display.hot-corners'
+local hotcorner = require('display.hot-corners')
 
 require('error')
 
@@ -87,8 +89,15 @@ ascreen.connect_for_each_screen(function(s)
 			awesome.emit_signal('dock::partial_show')
 		end
 	}
-end)
 
+	hotcorner {
+		screen = s,
+		position = 'top',
+		callback = function()
+			awesome.emit_signal('topbar::partial_show')
+		end
+	}
+end)
 
 root.buttons(gtable.join(
 	abutton({ }, 1, function()

@@ -1,27 +1,27 @@
 local ascreen =  require('awful.screen')
-local client  = {}
+local M  = {}
 
-function client.displayable_clients(c)
+function M.is_displayable(c)
 	return not (c.minimized or c.skip_taskbar or c.hidden)
 end
 
-function client.get_clients(filter)
+function M.get_clients(filter)
 	local tag = ascreen.focused().selected_tag
-	local clis = tag:clients()
+	local clients = tag:clients()
 
 	if type(filter) == 'function' then
 		local filtered_clis = {}
 
-		for i, cli in pairs(clis) do
+		table.for_each(clients, function(cli, i)
 			if filter(cli, i) then
 				table.insert(filtered_clis, cli)
 			end
-		end
+		end)
 
-		clis = filtered_clis
+		clients = filtered_clis
 	end
 
-	return clis
+	return clients
 end
 
-return client
+return M

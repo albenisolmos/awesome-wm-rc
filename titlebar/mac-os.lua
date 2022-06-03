@@ -1,27 +1,29 @@
-local awful = require('awful')
 local abutton = require('awful.button')
 local wibox = require('wibox')
 local dpi = require('beautiful').xresources.apply_dpi
+local amouse = require('awful.mouse')
+local abutton = require('awful.button')
+local atitlebar = require('awful.titlebar')
 
-awful.titlebar.enable_tooltip = false
+atitlebar.enable_tooltip = false
 
 client.connect_signal('request::titlebars', function(c)
 	local buttons = wibox.layout.fixed.horizontal()
 	buttons:set_spacing(8)
 
 	if c.type == 'dialog' then
-		buttons:add(awful.titlebar.widget.closebutton(c))
+		buttons:add(atitlebar.widget.closebutton(c))
 	else
-		buttons:add(awful.titlebar.widget.minimizebutton(c))
-		buttons:add(awful.titlebar.widget.maximizedbutton(c))
-		buttons:add(awful.titlebar.widget.closebutton(c))
+		buttons:add(atitlebar.widget.minimizebutton(c))
+		buttons:add(atitlebar.widget.maximizedbutton(c))
+		buttons:add(atitlebar.widget.closebutton(c))
 	end
 
-	awful.titlebar(c, {size = 35}).widget = {
+	atitlebar(c, {size = 35}).widget = {
 		layout = wibox.layout.align.horizontal,
 		nil,
 		{
-			widget = awful.titlebar.widget.titlewidget(c),
+			widget = atitlebar.widget.titlewidget(c),
 			align = 'center',
 			font = "Ubuntu 10.3",
 			buttons = {

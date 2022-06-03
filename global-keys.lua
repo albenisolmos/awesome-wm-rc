@@ -1,18 +1,17 @@
-local spawn = require('awful.spawn')
-local key = require('awful.key')
-local aclient = require('awful.client')
 local tag = require('awful.tag')
 local ascreen = require('awful.screen')
 local naughty = require('naughty')
 local gtable = require('gears.table')
-
+local key = require('awful.key')
+local uclient = require('utils.client')
+local spawn = require('awful.spawn')
+local aclient =require('awful.client')
 local pic_path   = '/Pictures/'
 local modkey = _G.preferences.modkey
 
-local global_keys = gtable.join(
-	key({ modkey }, 'n', function()
-		awesome.emit_signal('notifcenter::toggle')
-	end, { description = 'Toggle notification center', group = 'Awesome' }),
+
+
+local M = gtable.join(
 	key({ modkey }, 'Escape', function()
 		awesome.emit_signal('exitscreen::show')
 	end, { description = 'Show exit screen', group = 'Awesome' }),
@@ -113,50 +112,40 @@ local global_keys = gtable.join(
 	end, { description = 'Increase spacing between clients', group = 'Tag'})
 )
 
-function table.filter(tbl, fn)
-	local result = {}
+local function selected_client_by_index(index)
+	local clients = uclient.get_clients(function(cli)
+		return uclient.is_displayable(cli)
+	end)
 
-	for i, el in pairs(tbl) do
-		if fn(el, i) then
-			table.insert(result, el)
-		end
+	local cli = clients[index]
+	if cli then
+		client.focus = cli
+		cli:raise()
 	end
+end
 
-	return result
+local function view_tag(i)
+	local screen = ascreen.focused()
+	local tag = screen.tags[i]
+	if tag then
+		tag:view_only()
+	end
 end
 
 for i=1, 9 do
-	global_keys = gtable.join(global_keys,
-		key({ modkey, 'Shift' }, '#' .. i + 9,
-			function()
-				local tag = ascreen.focused().selected_tag
-				local clients = table.filter(tag:clients(), function(el)
-					return not el.skip_taskbar
-				end)
+	M = gtable.join(M,
+		key({ modkey, 'Shift' }, '#' .. i + 9, function()
+			selected_client_by_index(i)
+		end, { description = 'Select client by index', group = 'Client'}),
 
-				local cli = clients[i]
-				if cli then
-					client.focus = cli
-					cli:raise()
-				end
-			end, { description = 'Select client by index', group = 'Client'}),
+		key({ modkey }, '#' .. i + 9, function()
+			view_tag(i)
+		end, { description = 'only view tag', group = 'Tag'}),
 
-		key({ modkey }, '#' .. i + 9,
-			function()
-				local screen = ascreen.focused()
-				local tag = screen.tags[i]
-				if tag then
-					tag:view_only()
-				end
-			end, { description = 'only view tag', group = 'Tag'}),
-
-		key({ modkey, 'Control' }, '#' .. i + 9,
-			function()
+		key({ modkey, 'Control' }, '#' .. i + 9, function()
 				if client.focus then
 					local c = client.focus
 					local tag = c.screen.tags[i]
-					--local screen = ascreen.focused()
-					--local tag = screen.tags[i]
 					if tag then
 						client.focus:move_to_tag(tag)
 					end
@@ -165,4 +154,4 @@ for i=1, 9 do
 		)
 end
 
-return global_keys
+return M

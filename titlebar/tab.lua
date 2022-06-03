@@ -1,17 +1,21 @@
-local awful = require('awful')
-local wibox = require('wibox')
-local keygrabber = require('awful.keygrabber')
+local aclient = require('awful.client')
+local atitlebar = require('awful.titlebar')
+local abutton = require('awful.button')
+local akey = require('akey')
+local spawn = require('awful.spawn')
+local keygrabber = require('akeygrabber')
 local clickable = require('widget.clickable')
+local wibox = require('wibox')
 local gtable = require('gears.table')
 
 local Tab = {}
 
-function awful.client.object.set_witab(cli, witab)
+function aclient.object.set_witab(cli, witab)
 	cli._witab = witab 
 	cli:emit_signal('property::witab')
 end
 
-function awful.client.object.get_witab(self)
+function aclient.object.get_witab(self)
 	return self._witab
 end
 
@@ -20,14 +24,14 @@ local function tab_widget_new(c, witab)
 		widget = clickable,
 		{
 			layout = wibox.layout.align.horizontal,
-			awful.titlebar.widget.iconwidget(c),
-			awful.titlebar.widget.titlewidget(c),
+			atitlebar.widget.iconwidget(c),
+			atitlebar.widget.titlewidget(c),
 			nil
 		}
 	}
 
 	widget:buttons(gtable(
-		awful.button({}, 1, function()
+		abutton({}, 1, function()
 			witab:focus_client(c)
 		end)
 	))
@@ -46,7 +50,7 @@ local function find_index(tbl, target)
 end
 
 local function syncronize(cli, witab)
-	awful.titlebar.hide(cli)
+	atitlebar.hide(cli)
 	cli:connect_signal('property::geometry', function(c)
 		local geo = c:geometry()
 		witab:geometry({
@@ -82,7 +86,7 @@ local function tab_new(cli, is_first_tab)
 	end
 
 	if not is_first_tab then
-		awful.spawn(
+		spawn(
 			get_spawn_cmd(cli),
 			{ callback = function(c)
 				cli = c
@@ -154,7 +158,7 @@ function Tab.enable_tabs(cli)
 		stop_callback = function()
 		end,
 		root_keybindings = {
-			awful.key {
+			akey {
 				modifiers = {'Mod4', 'Mod1'},
 				keygroup = 'numrow',
 				on_press = tab_focus
@@ -174,7 +178,7 @@ function Tab.init()
 		stop_callback = function()
 		end,
 		root_keybindings = {
-			awful.key {
+			akey {
 				modifiers = {'Mod4'},
 				key = 'y',
 				on_press = tab_new

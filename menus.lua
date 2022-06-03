@@ -1,8 +1,8 @@
-local awful = require("awful")
-local beautiful = require("beautiful")
-local apps = require 'apps'
+local amenu = require('awful.menu')
+local beautiful = require('beautiful')
+local apps = require('apps')
 
-menuBrowserFiles = awful.menu {
+menuBrowserFiles = amenu {
 	items = {
 		{ 'Desktop',  apps.filemanager .. ' Desktop' },
 		{ 'Downloads',  apps.filemanager .. ' Downloads' },

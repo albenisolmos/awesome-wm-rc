@@ -1,4 +1,6 @@
-local awful = require('awful')
+local amouse = require('awful.mouse')
+local abutton = require('awful.button')
+local atitlebar = require('awful.titlebar')
 local dpi = require('beautiful').xresources.apply_dpi
 local gtable = require('gears.table')
 
@@ -7,7 +9,7 @@ local windows_titlebar = require 'titlebar.windows'
 local Menu = require 'widget.menu'
 local current_client
 
-awful.titlebar.enable_tooltip = false
+atitlebar.enable_tooltip = false
 
 local menu = Menu({
 	items = {
@@ -27,16 +29,16 @@ local menu = Menu({
 })
 
 client.connect_signal('request::titlebars', function(c)
-	awful.titlebar(c, { size = 35 }).widget = windows_titlebar(gtable.join(
-		awful.button({ }, 1, function()
+	atitlebar(c, { size = 35 }).widget = windows_titlebar(gtable.join(
+		abutton({ }, 1, function()
 			c:emit_signal("request::activate", "mouse_click", {raise = true})
-			awful.mouse.client.move(c)
+			amouse.client.move(c)
 		end),
-		awful.button({ }, 3, function()
+		abutton({ }, 3, function()
 			current_client = c
 			menu:show()
 			c:emit_signal("request::activate", "mouse_click", {raise = true})
-			awful.mouse.client.resize(c)
+			amouse.client.resize(c)
 		end)
 	), c)
 end)

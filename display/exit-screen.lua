@@ -1,9 +1,9 @@
-local shape     = require('gears.shape')
-local awful     = require('awful')
-local wibox     = require('wibox')
+local shape = require('gears.shape')
+local spawn = require('awful.spawn')
+local wibox = require('wibox')
 local beautiful = require('beautiful')
-local dpi       = beautiful.xresources.apply_dpi
 local clickable = require 'widget.clickable'
+local dpi = beautiful.xresources.apply_dpi
 
 local function add_button(icon, name, action)
 	return wibox.widget {
@@ -16,7 +16,7 @@ local function add_button(icon, name, action)
 			bg_hover  = beautiful.bg_hover,
 			bg_press  = beautiful.bg_press,
 			shape     = shape.rounded_rect,
-			callback  = function() awful.spawn.with_shell('sleep 0.5 && ' .. action) end,
+			callback  = function() spawn.with_shell('sleep 0.5 && ' .. action) end,
 			forced_height = dpi(100),
 			forced_width = dpi(100),
 			{
@@ -109,7 +109,7 @@ return function(screen)
 		exitScreen.visible = false
 	end)
 
-	awful.spawn.easy_async('bash -c whoami', function(stdout)
+	spawn.easy_async('bash -c whoami', function(stdout)
 		local user = stdout:gsub('^%s*(.-)%s*$', '%1')
 
 		exitScreen:get_children_by_id('user')[1]:set_markup(

@@ -4,7 +4,7 @@ local wibox      = require('wibox')
 local beautiful  = require('beautiful')
 local gtable = require('gears.table')
 local dpi        = beautiful.xresources.apply_dpi
-local multispawn = require 'util.multispawn'
+local multispawn = require 'utils.multispawn'
 
 return function(widget, popup_widget, on_hold)
 	local applet = wibox.widget {

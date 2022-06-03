@@ -1,9 +1,10 @@
-local awful = require('awful')
-local Tab = {}
+local keygrabber = require('awful.keygrabber')
+local akey = require('awful.key')
+local M = {}
 
 Tabs.all_tabs = {}
 
-function Tab.enable_tabs(c)
+function M.enable_tabs(c)
 	c.tabbed = true
 end
 
@@ -13,7 +14,7 @@ local function tab_new()
 	end
 end
 
-awful.keygrabber {
+keygrabber {
 	mask_event_callback = true,
 	export_keybinding = true,
 	stop_key = 'Mod4',
@@ -24,7 +25,7 @@ awful.keygrabber {
 	stop_callback = function()
 	end,
 	root_keybindings = {
-		awful.key {
+		akey {
 			modifiers = {'Mod4'},
 			key = 'y',
 			on_press = tab_new

@@ -1,4 +1,3 @@
-local awful = require('awful')
 local wibox = require('wibox')
 local surface = require('gears.surface')
 local shape = require('gears.shape')

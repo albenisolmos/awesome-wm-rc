@@ -1,9 +1,9 @@
-local awful               = require('awful')
-local wibox               = require('wibox')
-local shape               = require('gears.shape')
-local beautiful           = require('beautiful')
-local dpi                 = beautiful.xresources.apply_dpi
-local clickable           = require 'widget.clickable'
+local prompt = require('awful.prompt')
+local wibox = require('wibox')
+local shape = require('gears.shape')
+local beautiful = require('beautiful')
+local dpi = beautiful.xresources.apply_dpi
+local clickable = require 'widget.clickable'
 
 local tasks_cache = os.getenv('HOME') .. '/.config/awesome/cache/todo'
 local atextbox  = wibox.widget.textbox()
@@ -206,7 +206,7 @@ end
 
 toDo:get_children_by_id('button')[1]:connect_signal(
 'button::release', function()
-	awful.prompt.run {
+	aprompt.run {
 		prompt       = '',
 		bg_cursor    = '#D8D8D8',
 		textbox      = atextbox,
