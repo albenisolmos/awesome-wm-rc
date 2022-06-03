@@ -1,13 +1,15 @@
-local ascreen   = require('awful.screen')
-local gtimer     = require('gears.timer')
+local ascreen = require('awful.screen')
+local gtimer = require('gears.timer')
 local gshape = require('gears.shape')
-local wibox     = require('wibox')
+local wibox = require('wibox')
 local beautiful = require('beautiful')
-local dpi       = beautiful.xresources.apply_dpi
+local uclient = require('utils.client')
+local widget = require('widget')
+
+local dpi = beautiful.xresources.apply_dpi
 local partial_show = false
 local height = dpi(21)
 local increased_height = height + 20 + dpi(_G.preferences.client_rounded_corners)
-local widget = require('widget')
 
 return function(screen)
 	local topbar = wibox({
@@ -103,20 +105,6 @@ return function(screen)
 		end
 	end)
 
-	function topbar:show()
-		partial_show = false
-		self:struts({ top = topbar.height })
-		self.ontop = false
-		self.y = 0
-	end
-
-	function topbar:partial_show()
-		partial_show = true
-		self.ontop = true
-		self.y = 0
-		time_to_hide_topbar:start()
-	end
-
 	local function change_topbar(c)
 		if c.fullscreen and not c.minimized then
 			topbar:hide()
@@ -134,9 +122,9 @@ return function(screen)
 	end
 
 	local function update_topbar()
-		local t = ascreen.focused().selected_tag
+		local clients = uclient.get_clients()
 
-		for _, c in pairs(t:clients()) do
+		for _, c in pairs(clients) do
 			if change_topbar(c) then
 				return
 			else
@@ -146,6 +134,22 @@ return function(screen)
 
 		topbar.bg = beautiful.transparent
 		topbar:show()
+	end
+
+
+	function topbar:show()
+		partial_show = false
+		self:struts({ top = topbar.height })
+		self.ontop = false
+		self.y = 0
+	end
+
+	function topbar:partial_show()
+		if self.y >= 0 then return end
+
+		partial_show = true
+		self.ontop = true
+		self.y = 0
 	end
 
 	awesome.connect_signal('topbar::update', update_topbar)
