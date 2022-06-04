@@ -1,13 +1,13 @@
 local unpack = table.unpack or unpack
 
-local ascreen = require('awful.screen')
 local akeygrabber = require('awful.keygrabber')
 local wibox = require('wibox')
 local shape = require('gears.shape')
 local beautiful = require('beautiful')
+local uclient = require('utils.client')
 local dpi = beautiful.xresources.apply_dpi
 
-local client_widget = require 'display.switcher.client-widget'
+local client_widget = require('display.switcher.client-widget')
 local clients_box = wibox.layout.fixed.horizontal()
 local clients = {}
 local index = 1
@@ -16,26 +16,17 @@ local last_client
 
 local function get_client_widget(idx)
 	local widget = clients_box.children[idx]
-	return widget and widget or clients_box.children[1] or {}
-end
-
-local function client_can_be_shown(c)
-	 return not (c.minimized or c.skip_taskbar or c.hidden)
-end
-
-local function filter_clients(clis)
-	for i, cli in pairs(clis) do
-		if not client_can_be_shown(cli) then
-			table.remove(clis, i)
-		end
+	widget = widget and widget or clients_box.children[1]
+	if (not widget) then
+		_G.printn('get_client_widget: widget is null in the index ' .. idx )
 	end
-
-	return clis
+	return widget or {}
 end
 
 local function update_clients()
-	local tag = ascreen.focused().selected_tag
-	clients = filter_clients(tag:clients())
+	clients = uclient.get_clients(function(cli)
+		return uclient.is_displayable(cli)
+	end)
 end
 
 local function increase_index()
@@ -46,32 +37,39 @@ local function decrease_index()
 	index = index - 1 < 1 and #clients_box.children or index - 1
 end
 
-local function remove_client(c)
-	if client_can_be_shown(c) then
-		for i, child in pairs(clients_box.children) do
-			if child.client == c then
-				clients_box:remove(i)
-				switcher:update_geometry()
-				clients_box:emit_signal('widget::redraw_needed')
-				clients_box:emit_signal('widget::layout_changed')
-				break
-			end
+local function remove_client(cli, force)
+	if not uclient.is_displayable(cli) and not force then
+		_G.printn('remove_client: cli is not displayable')
+		return
+	end
+
+	for i, child in pairs(clients_box.children) do
+		if child.client == cli then
+			clients_box:remove(i)
+			switcher:update_geometry()
+			clients_box:emit_signal('widget::redraw_needed')
+			clients_box:emit_signal('widget::layout_changed')
+			break
 		end
 	end
 end
 
-local function add_client(c)
-	if last_client == c then return end
-	if client_can_be_shown(c) then
-		clients_box:add(client_widget(c))
-		switcher:update_geometry()
+local function add_client(cli)
+	if last_client == cli or not uclient.is_displayable(cli) then
+		printn('add_client fails')
+		return
 	end
+
+	clients_box:add(client_widget(cli))
+	switcher:update_geometry()
+	clients_box:emit_signal('widget::redraw_needed')
+	clients_box:emit_signal('widget::layout_changed')
 end
 
 local function add_clients(clis)
 	last_client = clis[1]
 	for _, cli in pairs(clis) do
-		if client_can_be_shown(cli) then
+		if uclient.is_displayable(cli) then
 			clients_box:add(client_widget(cli))
 		end
 	end
@@ -151,13 +149,22 @@ client.connect_signal('manage', function(cli)
 	update_clients()
 	add_client(cli)
 end)
+
 client.connect_signal('unmanage', function(cli)
+	if not cli then
+		_G.printn('unmanage: not client')
+	end
 	update_clients()
 	remove_client(cli)
 end)
+
 client.connect_signal('property::minimized', function(cli)
 	update_clients()
-	remove_client(cli)
+	if cli.minimized then
+		remove_client(cli, true)
+	else
+		add_client(cli)
+	end
 end)
 --client.connect_signal('tagged', update_clients)
 screen.connect_signal('tag::history::update', function()
@@ -169,6 +176,7 @@ return function(screen)
 	local widget_margin = wibox.container.margin(
 		clients_box, dpi(15), dpi(15), dpi(15), 0
 	)
+
 	switcher = wibox {
 		screen  = screen,
 		ontop   = true,
