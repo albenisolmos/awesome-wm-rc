@@ -59,14 +59,14 @@ screen.connect_signal("property::geometry", set_wallpaper)
 
 local function set_tag(name, screen, icon, layout, bool)
 	return atag.add(name, {
-			icon               = icon,
-			layout             = layout,
-			master_fill_policy = 'master_width_factor',
-			gap_single_client  = true,
-			gap                = 0,
-			screen             = screen,
-			selected           = bool or false,
-		})
+		icon               = icon,
+		layout             = layout,
+		master_fill_policy = 'master_width_factor',
+		gap_single_client  = true,
+		gap                = 0,
+		screen             = screen,
+		selected           = bool or false,
+	})
 end
 
 ascreen.connect_for_each_screen(function(s)
