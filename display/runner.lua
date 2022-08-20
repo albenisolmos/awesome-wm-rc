@@ -60,7 +60,7 @@ return function(screen)
 		current_verb = arg or 'run'
 		runner.visible = true
 
-		awful.prompt.run {
+		aprompt.run {
 			prompt  = '',
 			textbox = textbox,
 			exe_callback = function(cmd)

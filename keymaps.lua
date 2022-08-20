@@ -4,14 +4,16 @@ local naughty = require('naughty')
 local gtable = require('gears.table')
 local key = require('awful.key')
 local uclient = require('utils.client')
+local gshape = require('gears.shape')
 local spawn = require('awful.spawn')
 local aclient =require('awful.client')
 local pic_path   = '/Pictures/'
-local modkey = _G.preferences.modkey
+local modkey = SETTINGS.modkey
+local M = {}
+local keymaps = {}
 
-
-
-local M = gtable.join(
+function M.init()
+	keymaps = gtable.join(keymaps,
 	key({ modkey }, 'Escape', function()
 		awesome.emit_signal('exitscreen::show')
 	end, { description = 'Show exit screen', group = 'Awesome' }),
@@ -21,11 +23,11 @@ local M = gtable.join(
 	key({ modkey }, 'i', function()
 		awesome.emit_signal('hotkeys::show')
 	end, { description = 'Show help', group = 'Awesome' }),
-	key({ modkey }, 'r', function()
+	key({ modkey }, 'space', function()
 		awesome.emit_signal('runner::run', 'run')
 	end, { description = 'Open Runner', group = 'Awesome' }),
 	key({ modkey }, 'p', function()
-		spawn.with_shell(_G.preferences.cmd_player_pause)
+		spawn.with_shell(SETTINGS.cmd_player_pause)
 	end, { description = 'Play/Pause music player', group = 'System'}),
 	key({ modkey }, '+', function()
 		awesome.emit_signal('sound::level', '+5%')
@@ -56,15 +58,15 @@ local M = gtable.join(
 		end
 
 		spawn.easy_async_with_shell(
-			string.format('scrot $f %s%s%s', home, pic_path, name),
-			function()
-				naughty.notify {
-					app_name = 'Awesome',
-					title = 'Screenshot saved',
-					message = '~' .. pic_path .. name,
-					icon = home .. pic_path .. name,
-				}
-			end
+		string.format('scrot $f %s%s%s', home, pic_path, name),
+		function()
+			naughty.notify {
+				app_name = 'Awesome',
+				title = 'Screenshot saved',
+				message = '~' .. pic_path .. name,
+				icon = home .. pic_path .. name,
+			}
+		end
 		)
 
 		collectgarbage('collect')
@@ -73,10 +75,10 @@ local M = gtable.join(
 		spawn('scrot -s')
 	end, { description='Take a Rectangle Screenshot', group = 'Launch' }),
 	key({ modkey }, 'Return', function()
-		spawn(_G.preferences.terminal)
+		spawn(SETTINGS.terminal)
 	end, { description = 'Open a terminal', group = 'System' }),
-	key({ }, 'Super_R', function()
-		spawn(_G.preferences.launcher)
+	key({ modkey }, 'r', function()
+		spawn(SETTINGS.launcher)
 	end, { description = 'Apps launcher', group = 'System' }),
 	key({ modkey, 'Control' }, 's', function()
 		local c = aclient.restore()
@@ -102,7 +104,7 @@ local M = gtable.join(
 		if t.gap == 0 then
 			for _, c in pairs(t:clients()) do
 				if not c.floating then
-					c.shape = shape.rectangle
+					c.shape = gshape.rectangle
 				end
 			end
 		end
@@ -110,30 +112,30 @@ local M = gtable.join(
 	key({ modkey, 'Control' }, 'a', function()
 		tag.incgap(5)
 	end, { description = 'Increase spacing between clients', group = 'Tag'})
-)
+	)
 
-local function selected_client_by_index(index)
-	local clients = uclient.get_clients(function(cli)
-		return uclient.is_displayable(cli)
-	end)
+	local function selected_client_by_index(index)
+		local clients = uclient.get_clients(function(cli)
+			return uclient.is_displayable(cli)
+		end)
 
-	local cli = clients[index]
-	if cli then
-		client.focus = cli
-		cli:raise()
+		local cli = clients[index]
+		if cli then
+			client.focus = cli
+			cli:raise()
+		end
 	end
-end
 
-local function view_tag(i)
-	local screen = ascreen.focused()
-	local tag = screen.tags[i]
-	if tag then
-		tag:view_only()
+	local function view_tag(i)
+		local screen = ascreen.focused()
+		local tag = screen.tags[i]
+		if tag then
+			tag:view_only()
+		end
 	end
-end
 
-for i=1, 9 do
-	M = gtable.join(M,
+	for i=1, 9 do
+		keymaps = gtable.join(keymaps,
 		key({ modkey, 'Shift' }, '#' .. i + 9, function()
 			selected_client_by_index(i)
 		end, { description = 'Select client by index', group = 'Client'}),
@@ -143,15 +145,22 @@ for i=1, 9 do
 		end, { description = 'only view tag', group = 'Tag'}),
 
 		key({ modkey, 'Control' }, '#' .. i + 9, function()
-				if client.focus then
-					local c = client.focus
-					local tag = c.screen.tags[i]
-					if tag then
-						client.focus:move_to_tag(tag)
-					end
+			if client.focus then
+				local c = client.focus
+				local tag = c.screen.tags[i]
+				if tag then
+					client.focus:move_to_tag(tag)
 				end
-			end, {description = 'Move focused client to tag', group = 'Tag'})
+			end
+		end, {description = 'Move focused client to tag', group = 'Tag'})
 		)
+	end
+
+	return keymaps
+end
+
+function M.add(_keymaps)
+	keymaps = gtable.join(keymaps, _keymaps)
 end
 
 return M

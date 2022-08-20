@@ -14,7 +14,8 @@ local function current_clients()
 	return t:clients()
 end
 
-spawn.single_instance('olmos-dock', {
+return { init = function()
+	spawn.single_instance('olmos-dock', {
 		placement = placement.bottom + placement.center,
 		skip_taskbar = true,
 		sticky = true,
@@ -70,7 +71,7 @@ spawn.single_instance('olmos-dock', {
 				if dock.y == normal_coord then return end
 				partial_show = true
 				animate.move.y(dock, normal_coord)
-				if _G.preferences.dock_autohide then
+				if SETTINGS.dock_autohide then
 					dock.ontop = true
 					time_hide_dock:start()
 				else
@@ -93,7 +94,7 @@ spawn.single_instance('olmos-dock', {
 			end)
 
 			awesome.connect_signal('dock::partial_show', function()
-				if dock.y == normal_coord then return end
+				if dock and dock.y == normal_coord then return end
 				dock.ontop = true
 				partial_show = true
 				animate.move.y(dock, normal_coord)
@@ -114,9 +115,6 @@ spawn.single_instance('olmos-dock', {
 				end
 			end
 
-			screen.connect_signal('tag::history::update', function()
-			end)
-
 			client.connect_signal('property::maximized', client_toggle_dock)
 			client.connect_signal('property::fullscreen', client_toggle_dock)
 			tag.connect_signal('property::layout', function(t)
@@ -129,6 +127,18 @@ spawn.single_instance('olmos-dock', {
 					end
 				end
 			end)
+		end})
 
-		end}
-		)
+		return {
+			on_screen = function(s)
+				require('display.hot-corners') {
+					screen = s,
+					position = 'bottom',
+					callback = function()
+						awesome.emit_signal('dock::partial_show')
+					end
+				}
+			end
+		}
+	end
+}

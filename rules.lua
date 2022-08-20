@@ -38,33 +38,33 @@ rules.rules = {
 			placement = placement.no_overlap + placement.no_offscreen,
 			size_hints_honor  = false,
 			buttons = clientbuttons,
-			keys = require('client-keys')
+			keys = require('keymaps-client')
 		},
 		callback = function(c)
 			if c.requests_no_titlebar then
 				atitlebar.hide(c)
 			end
+			c.shape = function(cr, w, h)
+				shape.rounded_rect(cr, w, h,
+				dpi(SETTINGS.client_rounded_corners))
+			end
 		end
 	},
 	{
-		rule_any = { type = { 'normal', 'dialog'} },
+		rule_any = { type = { 'normal', 'dialog', 'splash'} },
 		properties = { titlebars_enabled = true },
 		callback = function(c)
 			placement.centered(c, {honor_padding = true,
 				honor_workarea = true})
 		end
 	},
-	{
+	--[[{
 		rule_any = {
-			type = { 'normal', 'dialog', 'splash', 'dock'}
+			type = { 'normal', 'dialog', 'splash', 'dock', 'menu'}
 		},
 		callback =  function(c)
-			c.shape = function(cr, w, h)
-				shape.rounded_rect(cr, w, h,
-				dpi(_G.preferences.client_rounded_corners))
-			end
 		end
-	},
+	},]]
 	{
 		id = 'floating',
 		rule_any = {
@@ -75,13 +75,13 @@ rules.rules = {
 		properties = { floating = true }
 	},
 	{ -- Fix requests_no_titlebar and add border
-		rule_any = { class = { "Firefox", "Xfce4-terminal"} },
+		rule_any = { class = { "Firefox", "Xfce4-terminal", "St"} },
 		callback = function(c)
 			atitlebar.hide(c)
 		end
 	},
 	{
-		rule_any = { class = {'Xfce4-terminal'} },
+		rule_any = { class = {'Xfce4-terminal', "St"} },
 		properties = {
 			border_width = _G.preferences.client_border_width or dpi(1),
 			border_color = beautiful.border_normal

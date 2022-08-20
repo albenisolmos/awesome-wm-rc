@@ -4,19 +4,9 @@ local titlebar = require('awful.titlebar')
 local client = require('awful.client')
 local gtable = require('gears.table')
 
-local modkey = _G.preferences.modkey
+local modkey = SETTINGS.modkey
 
 return gtable.join(
-	key({ modkey }, 'ñ',  function(c)
-		spawn.easy_async('xprop -id ' .. c.window, function(stdout)
-			naughty.notification {
-				title = 'notif',
-				message = stdout,
-				timeout = 0
-			}
-		end)
-	end, { description = 'toggle floating', group = 'client' }),
-
 	key({ modkey }, 'f',  client.floating.toggle,
 	{ description = 'toggle floating', group = 'client' }),
 

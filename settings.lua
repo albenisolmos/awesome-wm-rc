@@ -13,14 +13,16 @@ _G.preferences  = {
 	topbar_bg_solid = false,
 	topbar_hide_maximized = false,
 	topbar_autohide = false,
-	desktop_icon = false,
-	client_rounded_corners = 15,
+	topbar_height = dpi(21),
+	client_rounded_corners = dpi(15),
 	client_border_width = dpi(1),
 	client_rounded_corner_on_maximized = true,
+	desktop_icon = false,
 	switcher_preview = false,
+	volumen_indicator = true,
 	web_browser = 'firefox',
 	music_player = 'lollypop',
-	terminal = 'xfce4-terminal',
+	terminal = 'st',
 	launcher = 'rofi -show drun',
 	manager_network = 'wicd-gtk',
 	manager_package = 'synaptic-pkexec',
@@ -32,7 +34,10 @@ _G.preferences  = {
 	cmd_player_play = '',
 	cmd_player_pause = 'dbus-send --print-reply --dest=org.gnome.Lollypop /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause',
 	once_spawn = {
-		'picom',
+		--'picom',
 		'/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1'
 	}
 }
+
+_G.settings = preferences
+_G.SETTINGS = preferences

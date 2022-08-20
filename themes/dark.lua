@@ -130,6 +130,9 @@ theme.slider_handle_shape        = shape.circle
 theme.slider_handle_width        = dpi(19)
 theme.slider_handle_border_color = '#999999'
 theme.slider_handle_border_width = dpi(1)
+-- Progressbar
+theme.progressbar_active_color = '#999999'
+theme.progressbar_border_width = dpi(1)
 -- Prompt
 theme.prompt_bg_cursor = '#FFFFFF'
 theme.prompt_bg        = theme.transparent

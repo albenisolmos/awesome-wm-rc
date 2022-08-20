@@ -3,12 +3,38 @@ local spawn   = require('awful.spawn')
 local naughty = require('naughty')
 local button = require('awful.button')
 
-function _G.printn(msg)
+function _G.printn(...)
+	local msg = ''
+	local arg = type(...) ~= 'table' and {...} or ...
+
+	table.for_each(arg, function(el)
+		msg = msg .. ' ' .. tostring(el)
+	end)
+
 	naughty.notify {
 		title = 'Test',
 		text = tostring(msg)
 	}
 end
+
+function _G.printnn(...)
+	local msg = ''
+	local arg = type(...) ~= 'table' and {...} or ...
+
+	table.for_each(arg, function(el)
+		msg = msg .. ' ' .. tostring(el)
+	end)
+
+	naughty.notify {
+		timeout = 0,
+		title = 'Test',
+		text = tostring(msg)
+	}
+end
+
+awesome.connect_signal('hotkeys::show', function()
+	require('awful.hotkeys_popup').show_help()
+end)
 
 client.connect_signal('request::default_mousebindings', function()
 	mouse.append_client_mousebindings({

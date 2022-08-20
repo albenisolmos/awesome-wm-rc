@@ -39,7 +39,11 @@ end
 
 local function remove_client(cli, force)
 	if not uclient.is_displayable(cli) and not force then
-		_G.printn('remove_client: cli is not displayable')
+		return
+	end
+
+	if type(cli) == 'number' then
+		clients_box:remove(cli)
 		return
 	end
 
@@ -47,16 +51,21 @@ local function remove_client(cli, force)
 		if child.client == cli then
 			clients_box:remove(i)
 			switcher:update_geometry()
-			clients_box:emit_signal('widget::redraw_needed')
-			clients_box:emit_signal('widget::layout_changed')
 			break
 		end
 	end
 end
 
+local function remove_clients(amount)
+	for i=1, amount do
+		clients_box:remove(i)
+	end
+	clients_box:emit_signal('widget::redraw_needed')
+	clients_box:emit_signal('widget::layout_changed')
+end
+
 local function add_client(cli)
 	if last_client == cli or not uclient.is_displayable(cli) then
-		printn('add_client fails')
 		return
 	end
 
@@ -84,20 +93,12 @@ local function change_clients(clis)
 	end
 end
 
-local function remove_clients(amount)
-	for i=1, amount do
-		table.remove(clients_box.children, i)
-	end
-
-	clients_box:emit_signal('widget::redraw_needed')
-	clients_box:emit_signal('widget::layout_changed')
-end
-
 local function recycle_clients()
 	local n_clients = #clients
 	local n_clients_widgets = #clients_box.children
 
-	if n_clients < 1 then
+	if n_clients < 1 and n_clients_widgets > 0 then
+		remove_clients(n_clients_widgets)
 		return
 	elseif n_clients_widgets == 0 and n_clients > 0 then
 		add_clients(clients)

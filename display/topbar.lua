@@ -9,7 +9,7 @@ local widget = require('widget')
 local dpi = beautiful.xresources.apply_dpi
 local partial_show = false
 local height = dpi(21)
-local increased_height = height + 20 + dpi(_G.preferences.client_rounded_corners)
+local increased_height = height + 20 + dpi(SETTINGS.client_rounded_corners)
 
 return function(screen)
 	local topbar = wibox({
@@ -27,6 +27,7 @@ return function(screen)
 					layout = wibox.layout.align.horizontal,
 					{
 						layout = wibox.layout.align.horizontal,
+						require('widget.system.applet'),
 						widget {
 							margin= 2,
 							padding = 5,
@@ -38,8 +39,7 @@ return function(screen)
 						layout = wibox.layout.fixed.horizontal,
 						require 'widget.systray',
 						require 'widget.taglist'(screen),
-						require 'widget.sound.applet',
-						require 'widget.hardware-monitor.applet',
+						require 'widget.sound.applet'(screen),
 						require 'widget.dollar.applet',
 						require 'widget.clock.applet'
 					}
@@ -47,7 +47,7 @@ return function(screen)
 			}
 		})
 
-	topbar:struts({ top = 0 })
+	topbar:struts({ top = height })
 	local margin = topbar.widget:get_children_by_id('margin')[1]
 
 	local function topbar_reset_size()
@@ -114,7 +114,7 @@ return function(screen)
 		elseif c.maximized
 			or (not c.floating and not c.minimized)
 			and c.skip_taskbar then
-			topbar.bg = beautiful.topbar_bg
+			topbar.bg = beautiful.bg
 			topbar:show()
 			topbar_inc_size()
 			return true
@@ -165,6 +165,15 @@ return function(screen)
 			topbar:show()
 		end
 	end)
+
+	require('display.hot-corners') {
+		screen = screen,
+		position = 'top',
+		callback = function()
+			awesome.emit_signal('topbar::partial_show')
+		end
+	}
+	_G.loaded_topbar = true
 
 	return topbar
 end

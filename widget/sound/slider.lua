@@ -1,11 +1,12 @@
-local wibox     = require('wibox')
-local button   = require('awful.button')
-local spawn     = require('awful.spawn')
+local wibox = require('wibox')
+local button = require('awful.button')
 local beautiful = require('beautiful')
-local dpi       = beautiful.xresources.apply_dpi
+local dpi = beautiful.xresources.apply_dpi
 local gtable = require('gears.table')
 
-local slider = wibox.widget {
+local BLOCK = false
+
+local widget_slider = wibox.widget {
 	expand = 'none',
 	forced_width = dpi(220),
 	layout = wibox.layout.align.vertical,
@@ -20,42 +21,62 @@ local slider = wibox.widget {
 	nil
 }
 
-local volume_slider = slider.vol_slider
+local slider = widget_slider.vol_slider
 
-volume_slider:connect_signal('property::value', function(args)
-	awesome.emit_signal('sound::level', args.value .. '%')
-	awesome.emit_signal('widget::sound::small', args.value)
+local function set_value(value)
+	BLOCK = true
+	slider:set_value(value)
+	BLOCK = false
+end
+
+awesome.connect_signal('sound::level', function(value, self, block)
+	if self == widget_slider then
+		return
+	end
+
+	local from, to = string.find(value, '%d+')
+	local volumen = tonumber(string.sub(value, from, to))
+	local action = value:sub(1,1)
+
+	if action == '-' then
+		volumen = slider.value - volumen
+	elseif action == '+' then
+		volumen = slider.value + volumen
+	end
+
+	set_value(volumen)
 end)
 
-volume_slider:buttons(gtable.join(
+slider:connect_signal('property::value', function(self)
+	if BLOCK then return end
+	awesome.emit_signal('sound::level', self.value..'%', 
+		slider, true)
+end)
+
+slider:buttons(gtable.join(
+	button({}, 1, nil, function()
+		awesome.emit_signal('sound::level',
+			slider:get_value()..'%', true)
+	end),
 	button({}, 4, nil, function()
-		if volume_slider:get_value() > 100 then
-			volume_slider:set_value(100)
+		local volumen = slider:get_value()
+		if volumen >= 100 then
 			return
 		end
-		volume_slider:set_value(volume_slider:get_value() + 1)
+
+		volumen = volumen + 1
+
+		slider:set_value(volumen)
 	end),
 	button({}, 5, nil, function()
-		if volume_slider:get_value() < 0 then
-			volume_slider:set_value(0)
+		local volumen = slider:get_value()
+		if volumen <= 0 then
 			return
 		end
-		volume_slider:set_value(volume_slider:get_value() - 1)
+		volumen = volumen - 1
+
+		slider:set_value(volumen)
 	end)
 ))
 
-local function update_slider()
-	spawn.easy_async_with_shell(
-		[[bash -c "amixer -D pulse sget Master"]],
-		function(stdout)
-			local volume = string.match(stdout, '(%d?%d?%d)%%')
-
-			volume_slider:set_value(tonumber(volume))
-		end
-	)
-end
-
-update_slider()
-awesome.connect_signal('volume_level::update', update_slider)
-
-return slider
+return widget_slider
