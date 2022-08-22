@@ -8,7 +8,7 @@ local widget = require('widget')
 
 local dpi = beautiful.xresources.apply_dpi
 local partial_show = false
-local height = dpi(21)
+local height = dpi(24)
 local increased_height = height + 20 + dpi(SETTINGS.client_rounded_corners)
 
 return function(screen)
@@ -22,6 +22,7 @@ return function(screen)
 			bg = beautiful.transparent,
 			widget = wibox.widget {
 				layout = wibox.container.margin,
+				margins = dpi(3),
 				id = 'margin',
 				{
 					layout = wibox.layout.align.horizontal,

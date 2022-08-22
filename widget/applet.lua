@@ -17,8 +17,8 @@ return function(widget, popup_widget, on_hold)
 		{
 			layout = wibox.container.margin,
 			left = dpi(12),
-			top = dpi(2),
-			bottom = dpi(2),
+			top = dpi(1),
+			bottom = dpi(1),
 			{
 				widget = widget
 			}
