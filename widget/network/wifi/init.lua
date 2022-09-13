@@ -13,7 +13,7 @@ wifi:actions {
 		end
 	end,
 	on_hold = function()
-		spawn(_G.preferences.manager_network)
+		spawn(SETTINGS.manager_network)
 	end
 }
 

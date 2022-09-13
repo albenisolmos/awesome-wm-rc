@@ -9,7 +9,7 @@ return function(s)
 	local applet = build_applet(
 		wibox.widget.imagebox(beautiful.icon_sound),
 		widget_medium,
-		function() spawn(_G.preferences.manager_sound) end
+		function() spawn(SETTINGS.manager_sound) end
 	)
 
 	return applet

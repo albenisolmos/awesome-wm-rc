@@ -149,9 +149,9 @@ theme.snap_bg = theme.bg_hi
 theme.snap_border_width = dpi(2)
 
 -- Define the images to load
-if _G.preferences.titlebar_style == 'windows' then
+if SETTINGS.titlebar_style == 'windows' then
 	titlebar_icon = dir .. 'dark_icons/titlebar/windows/'
-elseif _G.preferences.titlebar_style == 'macos' then
+elseif SETTINGS.titlebar_style == 'macos' then
 	titlebar_icon = dir .. 'dark_icons/titlebar/macos/'
 end
 theme.titlebar_close_button_normal                   = titlebar_icon .. 'close-unfocus.svg'

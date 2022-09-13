@@ -83,7 +83,7 @@ rules.rules = {
 	{
 		rule_any = { class = {'Xfce4-terminal', "St"} },
 		properties = {
-			border_width = _G.preferences.client_border_width or dpi(1),
+			border_width = SETTINGS.client_border_width or dpi(1),
 			border_color = beautiful.border_normal
 		}
 	}
