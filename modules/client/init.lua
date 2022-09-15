@@ -1,6 +1,7 @@
 local spawn = require('awful.spawn')
 local amouse = require('awful.mouse')
 local wibox = require('wibox')
+local alayout = require('awful.layout')
 local shape = require('gears.shape')
 local dpi = require('beautiful').xresources.apply_dpi
 local last_coords = { x = 0, y = 0}
