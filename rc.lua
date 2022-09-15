@@ -22,9 +22,8 @@ autil.shell = SETTINGS.shell
 amouse.snap.edge_enabled = false
 amouse.snap.client_enabled = false
 awesome.set_preferred_icon_size(64)
-
 -- On init --
-beautiful.init(string.format('%s/themes/%s.lua', dir,  SETTINGS.theme))
+beautiful.init(string.format('%s/themes/%s/init.lua', dir,  SETTINGS.theme))
 for _, command in pairs(SETTINGS.once_spawn) do
 	spawn.once(command)
 end
