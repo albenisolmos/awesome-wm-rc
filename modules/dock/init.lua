@@ -8,7 +8,7 @@ return { init = function()
 		sticky = true,
 		callback = function(dock)
 			require('modules.dock.hiding_behavior')(dock)
-			awesome.emit_signal('dock::hiding_behavior', SETTINGS.dock_hide)
+			awesome.emit_signal('dock::hiding_behavior', SETTINGS.dock_hiding_behavior)
 		end})
 
 		return {
