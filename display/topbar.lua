@@ -30,7 +30,7 @@ return function(screen)
 						layout = wibox.layout.align.horizontal,
 						require('widget.system.applet'),
 						widget {
-							margin= 2,
+							margin = 2,
 							padding = 5,
 							require 'widget.workspaces'
 						}
