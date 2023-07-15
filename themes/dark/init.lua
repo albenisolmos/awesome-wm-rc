@@ -2,11 +2,15 @@ local shape = require('gears.shape')
 local dir = require('gears.filesystem').get_configuration_dir() .. '/themes/dark/'
 local dpi = require('beautiful').xresources.apply_dpi
 
+local settings = require('settings')
+local ucolor = require('utils.color')
+
 local theme = {}
 local titlebar_icon
 local layout_icons  = dir .. 'icons/layouts/'
 local icon_dir = dir .. 'icons/'
 local default_font = 'SF Pro Display '
+local highlight = settings.highlight
 
 -- Variables
 theme.font        = default_font .. ' 10'
@@ -14,24 +18,23 @@ theme.font_medium = default_font .. 'Regular 12'
 theme.font_small  = default_font .. 'Regular 10'
 theme.font_bold   = default_font .. 'Semi-Bold 10'
 theme.font_big    = default_font .. 'Regular 15'
-theme.icon_user = dir .. 'icon-user.png'
-theme.dock_use = true
-theme.dock_hide = true
 theme.dock_bg_solid = false
 theme.topbar_tasklist = false
 theme.topbar_bg_solid = false
 theme.topbar_bg = '#21212150'
+theme.wibox_bg = '#000000'
+theme.highlight = highlight
 theme.bg = '#15151595'
 theme.bg_card = '#00000020'
 theme.bg_chips = '#FFFFFF15'
-theme.bg_hover = '#FFFFFF10'
+theme.bg_hover = ucolor.blend_hexcolor(settings.highlight, '#FFFFFF', 0.5) .. '30'
 theme.bg_press = '#00000020'
 theme.bg_urgent = '#ff0000'
 theme.bg_highlight = '#228ae7d8'
 theme.transparent = '#00000000'
 theme.border_width = dpi(1)
-theme.border_normal = '#303030'
-theme.border_focus  = '#252525'
+theme.border_normal = '#252525'
+theme.border_focus  = ucolor.blend_hexcolor(highlight, '#000000', 0.80)
 theme.border_marked = '#91231c'
 theme.fg_normal = '#D8D8D8'
 theme.fg_focus = '#D8D8D8'
@@ -117,12 +120,14 @@ theme.notification_bg       = theme.bg
 theme.notification_shape    = shape.rounded_rect
 theme.notification_critical = '#b52b2b'
 -- Slider
+local slider_bg = ucolor.blend_hexcolor(theme.highlight, '#ffffff', 0.1)
 theme.slider_bar_color           = theme.bg_chips
 theme.slider_bar_shape           = shape.rounded_bar
 theme.slider_bar_height          = dpi(18)
-theme.slider_bar_active_color    = '#ffffff'
+theme.slider_bar_active_color    = slider_bg
 theme.slider_bar_border_width    = dpi(1)
-theme.slider_handle_color        = '#ffffff'
+--theme.slider_handle_color        = '#ffffff'
+theme.slider_handle_color           = slider_bg
 theme.slider_handle_shape        = shape.circle
 theme.slider_handle_width        = dpi(19)
 theme.slider_handle_border_color = '#999999'
@@ -146,11 +151,12 @@ theme.snap_bg = theme.bg_hi
 theme.snap_border_width = dpi(2)
 
 -- Define the images to load
-if SETTINGS.titlebar_style == 'windows' then
+if settings.titlebar_style == 'windows' then
 	titlebar_icon = dir .. 'icons/titlebar/windows/'
-elseif SETTINGS.titlebar_style == 'macos' then
+elseif settings.titlebar_style == 'macos' then
 	titlebar_icon = dir .. 'icons/titlebar/macos/'
 end
+
 theme.titlebar_close_button_normal                   = titlebar_icon .. 'close-unfocus.svg'
 theme.titlebar_close_button_focus                    = titlebar_icon .. 'close.svg'
 theme.titlebar_close_button_focus_hover              = titlebar_icon .. 'close_hover.svg'

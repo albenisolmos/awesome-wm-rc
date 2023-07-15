@@ -4,9 +4,9 @@ local abutton = require('awful.button')
 local akey = require('akey')
 local spawn = require('awful.spawn')
 local keygrabber = require('akeygrabber')
-local clickable = require('widget.clickable')
 local wibox = require('wibox')
 local gtable = require('gears.table')
+local clickable = require('widgets.clickable')
 
 local Tab = {}
 

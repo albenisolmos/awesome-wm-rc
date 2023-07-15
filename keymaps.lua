@@ -1,41 +1,44 @@
 local tag = require('awful.tag')
 local ascreen = require('awful.screen')
+local akey = require('awful.key')
+local aclient = require('awful.client')
+local spawn = require('awful.spawn')
 local naughty = require('naughty')
 local gtable = require('gears.table')
-local key = require('awful.key')
-local uclient = require('utils.client')
 local gshape = require('gears.shape')
-local spawn = require('awful.spawn')
-local aclient =require('awful.client')
-local pic_path   = '/Pictures/'
-local modkey = SETTINGS.modkey
+
+local uclient = require('utils.client')
+local settings = require('settings')
+
 local M = {}
 local keymaps = {}
+local pic_path   = '/Pictures/'
+local modkey = settings.modkey
 
 function M.init()
 	keymaps = gtable.join(keymaps,
-	key({ modkey }, 'Escape', function()
+	akey({ modkey }, 'Escape', function()
 		awesome.emit_signal('exitscreen::show')
 	end, { description = 'Show exit screen', group = 'Awesome' }),
-	key({ modkey, 'Control' }, 'r', function()
+	akey({ modkey, 'Control' }, 'r', function()
 		awesome.restart()
 	end, { description = 'Reload awesome', group = 'Awesome' }),
-	key({ modkey }, 'i', function()
+	akey({ modkey }, 'i', function()
 		awesome.emit_signal('hotkeys::show')
 	end, { description = 'Show help', group = 'Awesome' }),
-	key({ modkey }, 'space', function()
-		awesome.emit_signal('runner::run', 'run')
-	end, { description = 'Open Runner', group = 'Awesome' }),
-	key({ modkey }, 'p', function()
-		spawn.with_shell(SETTINGS.cmd_player_pause)
+	--key({ modkey }, 'space', function()
+	--	awesome.emit_signal('runner::run', 'run')
+	--end, { description = 'Open Runner', group = 'Awesome' }),
+	akey({ modkey }, 'p', function()
+		spawn.with_shell(settings.cmd_player_pause)
 	end, { description = 'Play/Pause music player', group = 'System'}),
-	key({ modkey }, '+', function()
+	akey({ modkey }, ']', function()
 		awesome.emit_signal('sound::level', '+5%')
 	end, { description = 'Increase volume level', group = 'System'}),
-	key({ modkey }, '-', function()
+	akey({ modkey }, '[', function()
 		awesome.emit_signal('sound::level', '-5%')
 	end, { description = 'Decrease volume level', group = 'System'}),
-	key({}, 'Print', function()
+	akey({}, 'Print', function()
 		local home = os.getenv('HOME')
 		local name = 'screenshot-' .. os.date( '%d-%m-%G' ) .. '-1.png'
 		local num = 1
@@ -71,34 +74,30 @@ function M.init()
 
 		collectgarbage('collect')
 	end, { description='Take a Screenshot', group = 'System' }),
-	key({ 'Mod1' }, 'Print', function()
+	akey({ 'Mod1' }, 'Print', function()
 		spawn('scrot -s')
 	end, { description='Take a Rectangle Screenshot', group = 'Launch' }),
-	key({ modkey }, 'Return', function()
-		spawn(SETTINGS.terminal)
+	akey({ modkey }, 'Return', function()
+		spawn(settings.terminal)
 	end, { description = 'Open a terminal', group = 'System' }),
-	key({ modkey }, 'r', function()
-		spawn(SETTINGS.launcher)
+	akey({ modkey }, 'r', function()
+		spawn(settings.launcher)
 	end, { description = 'Apps launcher', group = 'System' }),
-	key({ modkey, 'Control' }, 's', function()
+	akey({ modkey, 'Control' }, 's', function()
 		local c = aclient.restore()
 		if c then
 			c:emit_signal("request::activate", "key.unminimized", {raise = true})
 		end
 	end, { description = 'Restore minimized client', group = 'client' }),
-	key({ modkey }, 'a', function() tag.viewprev() end,
+	akey({ modkey }, 'p', function() tag.viewprev() end,
 	{ description = 'Go to previous tag', group = 'Tag' }),
-	key({ modkey }, 'd', function() tag.viewnext() end,
+	akey({ modkey }, 'b', function() tag.viewnext() end,
 	{ description = 'Go to next tag', group = 'Tag' }),
-	key({ modkey }, 'h', function() tag.viewprev() end,
+	akey({ modkey }, 'Left', function() tag.viewprev() end,
 	{ description = 'Go to previous tag', group = 'Tag' }),
-	key({ modkey }, 'l', function() tag.viewnext() end,
+	akey({ modkey  }, 'Right', function() tag.viewnext() end,
 	{ description = 'Go to next tag', group = 'Tag' }),
-	key({ modkey }, 'Left', function() tag.viewprev() end,
-	{ description = 'Go to previous tag', group = 'Tag' }),
-	key({ modkey  }, 'Right', function() tag.viewnext() end,
-	{ description = 'Go to next tag', group = 'Tag' }),
-	key({ modkey, 'Control' }, 'd', function()
+	akey({ modkey, 'Control' }, 'd', function()
 		local t = screen.focused().selected_tag
 		tag.incgap(-5, t)
 		if t.gap == 0 then
@@ -109,7 +108,7 @@ function M.init()
 			end
 		end
 	end, { description = 'Increase spacing between clients', group = 'Tag'}),
-	key({ modkey, 'Control' }, 'a', function()
+	akey({ modkey, 'Control' }, 'a', function()
 		tag.incgap(5)
 	end, { description = 'Increase spacing between clients', group = 'Tag'})
 	)
@@ -136,15 +135,15 @@ function M.init()
 
 	for i=1, 9 do
 		keymaps = gtable.join(keymaps,
-		key({ modkey, 'Shift' }, '#' .. i + 9, function()
+		akey({ modkey, 'Shift' }, '#' .. i + 9, function()
 			selected_client_by_index(i)
 		end, { description = 'Select client by index', group = 'Client'}),
 
-		key({ modkey }, '#' .. i + 9, function()
+		akey({ modkey }, '#' .. i + 9, function()
 			view_tag(i)
 		end, { description = 'only view tag', group = 'Tag'}),
 
-		key({ modkey, 'Control' }, '#' .. i + 9, function()
+		akey({ modkey, 'Control' }, '#' .. i + 9, function()
 			if client.focus then
 				local c = client.focus
 				local tag = c.screen.tags[i]

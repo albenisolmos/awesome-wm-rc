@@ -8,12 +8,12 @@ local function place_center(cli, obj)
 end
 
 return function(screen)
-	local tile_layout_indicator = wibox {
+	local popup_tile_layouts = wibox {
 		screen = screen,
 		visible = false,
 		ontop = true,
-		width = dpi(400),
-		height = dpi(400),
+		width = dpi(200),
+		height = dpi(150),
 		bg = beautiful.bg,
 		widget = wibox.widget{
 			layout = wibox.container.margin,
@@ -21,21 +21,24 @@ return function(screen)
 			{
 				layout = wibox.layout.grid.vertical,
 				spacing = dpi(5),
-				require('modules.client.tile_layout').tile_layouts_widget(
+				require('modules.client.tile_layout').make_grid_tile_layouts(
 					require('modules.client.tile_layouts')
 				)
 			}
 		}
 	}
 
-	awesome.connect_signal('tile_layout_indicator::show', function()
-		place_center(client.focus, tile_layout_indicator)
-		tile_layout_indicator.visible = true
+	awesome.connect_signal('popup_tile_layouts::toggle', function()
+		if popup_tile_layouts.visible then
+			popup_tile_layouts.visible = false
+			return
+		elseif not client.focus then return end
+
+		place_center(client.focus, popup_tile_layouts)
+		popup_tile_layouts.visible = true
 	end)
 
-	-- TODO trigger this signal when:
-	--		* Press Escape
-	awesome.connect_signal('tile_layout_indicator::hide', function()
-		tile_layout_indicator.visible = false 
+	awesome.connect_signal('popup_tile_layouts::hide', function()
+		popup_tile_layouts.visible = false
 	end)
 end

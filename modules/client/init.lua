@@ -1,27 +1,60 @@
 local spawn = require('awful.spawn')
 local amouse = require('awful.mouse')
-local wibox = require('wibox')
 local alayout = require('awful.layout')
-local shape = require('gears.shape')
+local gshape = require('gears.shape')
+local abutton = require('awful.button')
 local dpi = require('beautiful').xresources.apply_dpi
-local last_coords = { x = 0, y = 0}
+local ushape = require('utils.shape')
+local settings = require('settings')
+
+local client_shape_on_maximized = ushape.build(settings.client_shape_on_maximized)
+local last_coords = {x = 0, y = 0}
 local M = {}
+
+local function hard_shadow(cr, width, height, radius)
+    radius = radius or 10
+
+    if width / 2 < radius then
+        radius = width / 2
+    end
+
+    if height / 2 < radius then
+        radius = height / 2
+    end
+
+    cr:move_to(0, radius)
+
+    cr:arc( radius      , radius       , radius,    math.pi   , 3*(math.pi/2) )
+    cr:arc( width-radius, radius       , radius, 3*(math.pi/2),    math.pi*2  )
+    cr:arc( width-radius, height-radius, radius,    math.pi*2 ,    math.pi/2  )
+    cr:arc( radius      , height-radius, radius,    math.pi/2 ,    math.pi    )
+
+    cr:close_path()
+end
+
+local function client_shape(cr, w, h)
+	hard_shadow(cr, w, h, dpi(settings.client_rounded_corners))
+	--gshape.rounded_rect(cr, w, h, dpi(settings.client_rounded_corners))
+end
 
 local function on_fullscreen(cli)
 	if cli.fullscreen then
-		cli.shape = shape.rectangle
+		cli.shape = gshape.rectangle
 	else
 		M.restore_client(cli)
 	end
 end
 
-local function on_maximized(cli)
+function M.on_maximized(cli)
+	if cli.size_hints_honor then
+		-- FIX: Cant make to center client when is maximized
+		--aplacement.centered(cli)
+		cli.y = (cli.height - cli.screen.workarea.height) / 2
+		cli.x = (cli.width - cli.screen.workarea.width) / 2
+	end
+
 	if cli.maximized then
-		local rounded = dpi(SETTINGS.client_rounded_corner_on_maximized
-			and SETTINGS.client_rounded_corners or 0)
-		cli.shape = function(cr, w, h)
-			shape.rounded_rect(cr, w, h, rounded, rounded, 0, 0)
-		end
+		cli.shape = client_shape_on_maximized
 	else
 		M.restore_client(cli)
 	end
@@ -31,7 +64,15 @@ local function on_tiled_client(cli)
 	if cli.floating then
 		M.restore_client(cli)
 	else
-		cli.shape = shape.rectangle
+		cli.shape = settings.client_shape_on_tiled or gshape.rectangle
+	end
+end
+
+local function on_activate(cli)
+	if cli.active then
+		spawn('xprop -set _NET_WM_STATE_FOCUSED true -id ' .. cli.window)
+	else
+		spawn('xprop -remove _NET_WM_STATE_FOCUSED -id ' .. cli.window)
 	end
 end
 
@@ -42,6 +83,36 @@ local function on_tiled_clients(t)
 	end
 end
 
+function M.restore_client(cli)
+	cli.shape = client_shape
+	cli.border_width = settings.client_border_width
+end
+
+function M.init()
+	awesome.register_xproperty('_NET_WM_STATE_FOCUSED', 'boolean')
+
+	client.connect_signal('request::activate', on_activate)
+	client.connect_signal('property::fullscreen', on_fullscreen)
+	client.connect_signal('property::maximized', M.on_maximized)
+	client.connect_signal('property::floating', on_tiled_client)
+	tag.connect_signal('property::layout', on_tiled_clients)
+    client.connect_signal('request::default_mousebindings', function()
+        amouse.append_client_mousebindings({
+            abutton({ }, 1, function(c)
+                c:activate { context = 'mouse_click' }
+                awesome.emit_signal('popup::hide')
+            end),
+            abutton({settings.modkey}, 1, function(c)
+                c:activate { context = 'mouse_click', action = 'mouse_move'  }
+            end),
+            abutton({settings.modkey}, 3, function(c)
+                c:activate { context = 'mouse_click', action = 'mouse_resize'}
+            end)
+        })
+end)
+
+end
+
 amouse.resize.add_enter_callback(function(c)
 	last_coords.x = c.x
 	last_coords.y = c.y
@@ -50,8 +121,7 @@ end, 'mouse.move')
 amouse.resize.add_leave_callback(function(c)
 	if (not c.floating)
 		and alayout.get(c.screen) ~= alayout.suit.floating
-		or c.type == 'dialog'
-		then
+		or c.type == 'dialog' then
 		return
 	end
 
@@ -79,47 +149,15 @@ amouse.resize.add_leave_callback(function(c)
 		c.x = 0
 		c.y = sw.y
 		c.width = sg.width / 2
-		c.height = sg.height - sw.y
+		c.height = sw.height
 	elseif coords.x >= sg.width - snap then
 		c.x = sg.width - c.width
 		c.y = sw.y
 		c.width = sg.width / 2
-		c.height = sg.height - sw.y
+		c.height = sw.height
+    elseif c.y + c.height >= sw.height then
+        c.y = sw.height - c.height
 	end
-end, "mouse.move")
-
-function M.restore_client(cli)
-	cli.shape = function(cr, w, h)
-		shape.rounded_rect(cr, w, h, dpi(SETTINGS.client_rounded_corners))
-	end
-	cli.border_width = SETTINGS.client_border_width
-end
-
-function M.init(screen)
-	awesome.register_xproperty('_NET_WM_NAME', 'string')
-	awesome.register_xproperty('_NET_WM_STATE_FOCUSED', 'boolean')
-
-	client.connect_signal('request::activate', function(c)
-		if c.active then
-			spawn('xprop -set _NET_WM_STATE_FOCUSED true -id ' .. c.window)
-		else
-			spawn('xprop -remove _NET_WM_STATE_FOCUSED -id ' .. c.window)
-		end
-	end)
-
-	client.connect_signal('property::fullscreen', on_fullscreen)
-	client.connect_signal('property::maximized', on_maximized)
-	client.connect_signal('property::floating', on_tiled_client)
-	tag.connect_signal('property::layout', on_tiled_clients)
-
-	return {
-		on_keymaps = function()
-			return require('modules.client.keymaps')()
-		end,
-		on_screen = function(screen)
-			return require('modules.client.screen')(screen)
-		end
-	}
-end
+end, 'mouse.move')
 
 return M

@@ -1,42 +1,55 @@
-local key = require('awful.key')
-local spawn = require('awful.spawn')
-local titlebar = require('awful.titlebar')
-local client = require('awful.client')
+local akey = require('awful.key')
+local atitlebar = require('awful.titlebar')
+local aclient = require('awful.client')
 local gtable = require('gears.table')
+local uclient = require('utils.client')
+local settings = require('settings')
 
-local modkey = SETTINGS.modkey
+local modkey = settings.modkey
 
 return gtable.join(
-	key({ modkey }, 'f',  client.floating.toggle,
-	{ description = 'toggle floating', group = 'client' }),
+	akey({modkey, 'Shift'}, 'm', function()
+		uclient.minimize_all()
+	end, { description = 'Show exit screen', group = 'Client' }),
 
-	key({ modkey }, 'g', function(c)
-		c.ontop = not c.ontop
-	end, { description = 'toggle keep on top', group = 'client' }),
-
-	key({ modkey }, 'y', function(c)
-		c.sticky = not c.sticky
-		c:raise()
-	end, { description = 'Toggle keep on sticky', group = 'client' }),
-
-	key({ modkey }, 'q', function(c)
-		c:kill()
-	end, { description = 'close', group = 'client' }),
-
-	key({ modkey }, 's', function(c)
+	akey({ modkey }, 'm', function(c)
 		c.minimized = true
-	end, { description = 'Toggle minimize', group = 'client' }),
+	end, { description = 'Minimize client', group = 'Client' }),
 
-	key({ modkey }, 'w', function(c)
+	akey({modkey, 'Control'}, 'm', function()
+		local c = aclient.restore()
+		-- Focus restored client
+		if c then
+			c:activate { raise = true, context = "key.unminimize" }
+		end
+	end, { description = 'Unminimize client', group = 'Client' }),
+
+	akey({ modkey }, 'w', function(c)
 		c.maximized = not c.maximized
 		c:raise()
-	end, { description = 'Toggle maximize', group = 'client' }),
+	end, { description = 'Toggle maximize', group = 'Client' }),
 
-	key({ modkey, 'Control' }, 'w', function(c)
+	akey({ modkey }, 'q', function(c)
+		c:kill()
+	end, { description = 'Close client', group = 'Client' }),
+
+	akey({ modkey, 'Control' }, 'w', function(c)
 		c.fullscreen = not c.fullscreen
 		c:raise()
-	end, { description = 'Toggle fullscreen', group = 'client' }),
+	end, { description = 'Toggle fullscreen', group = 'Client' }),
 
-	key({ modkey }, 't', titlebar.toggle,
-		{ description = 'Toggle  titlebar', group = 'client' })
+	akey({modkey}, 'f',  aclient.floating.toggle,
+	{ description = 'toggle floating', group = 'Client' }),
+
+	akey({modkey}, 't', function(c)
+		c.ontop = not c.ontop
+	end, { description = 'toggle keep on top', group = 'Client' }),
+
+	akey({ modkey }, 'y', function(c)
+		c.sticky = not c.sticky
+		c:raise()
+	end, { description = 'Toggle keep on sticky', group = 'Client' }),
+
+	akey({modkey, 'Shift'}, 't', atitlebar.toggle,
+		{ description = 'Toggle titlebar', group = 'Client' })
 )

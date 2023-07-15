@@ -24,4 +24,29 @@ function M.get_clients(filter)
 	return clients
 end
 
+local minimized_clients = {}
+local function minimize_tag_clients(tag, bool)
+    for _, cli in pairs(minimized_clients[tag] or {}) do
+        cli.minimized = bool
+    end
+end
+
+function M.minimize_all()
+	local current_screen = ascreen.focused()
+    assert(current_screen, 'No screen is present currently')
+
+	local current_tags = current_screen.selected_tags
+
+    for _, current_tag in pairs(current_tags) do
+        if minimized_clients[current_tag] then
+            minimize_tag_clients(current_tag, false)
+            minimized_clients[current_tag] = nil
+        else
+            local clients = current_tag:clients()
+            minimized_clients[current_tag] = clients
+            minimize_tag_clients(current_tag, true)
+        end
+    end
+end
+
 return M
