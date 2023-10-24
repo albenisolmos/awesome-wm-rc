@@ -9,19 +9,15 @@ local uclient = require('utils.client')
 local is_temporarily_showed = false
 local is_popup_visible
 local wibar = {}
-local MISSING_PIXELS = 3
 local M = {}
 
--- Undefined functions
-local get_coord_hide, get_coord_show
-local get_struct_hide, get_struct_show
-local overstep_edge
+local position = {}
 
 local function wibar_hide()
 	if is_popup_visible then return end
 	is_temporarily_showed = false
-	wibar:struts(get_struct_hide())
-	wibar.y = get_coord_hide()
+	wibar:struts(position.hide_struct)
+	wibar.y = position.hide_coord
 end
 
 local timer_hide_wibar = gtimer {
@@ -41,10 +37,10 @@ awesome.connect_signal('popup::visible', function(visible)
 end)
 
 local function wibar_show()
-	if wibar.y == get_coord_show() then return end
+	if wibar.y == position.show_coord then return end
 
-	wibar:struts(get_struct_show())
-	wibar.y = get_coord_show()
+	wibar:struts(position.show_struct)
+	wibar.y = position.show_coord
 
 	if settings.wibar_autohide then
 		timer_hide_wibar:start()
@@ -52,11 +48,14 @@ local function wibar_show()
 end
 
 local function wibar_show_temporarily()
-	if wibar.y == get_coord_show() then return end
+	if wibar.y == position.show_coord then return end
 	is_temporarily_showed = true
 	wibar.ontop = true
-	wibar.y = get_coord_show()
-	wibar:struts(get_struct_show(true))
+	wibar.y = position.show_coord
+
+    if settings.wibar_invade_on_maximized then
+        wibar:struts(position.show_struct)
+    end
 end
 
 local function wibar_update_client(cli)
@@ -82,7 +81,7 @@ local function wibar_update()
 		return
 	end
 
-	local clients = uclient.get_clients()
+	local clients = uclient.get_clients_in_tags()
 
 	for _, cli in pairs(clients) do
 		if wibar_update_client(cli) then
@@ -101,53 +100,12 @@ local function wibar_on_enter()
 end
 
 local function wibar_on_leave()
-	if is_temporarily_showed and overstep_edge() then
+	if is_temporarily_showed and position.overstep_edge then
 		timer_hide_wibar:start()
 	end
 end
 
 function M.on_screen(screen)
-	if not settings.wibar_position or settings.wibar_position == 'top' then
-		get_coord_hide = function()
-			return screen.geometry.y - wibar.height
-		end
-		get_coord_show = function()
-			return screen.geometry.y
-		end
-		get_struct_hide = function()
-			return {top = 0}
-		end
-		get_struct_show = function(invade)
-			if invade and settings.wibar_invade_on_maimized then
-				return
-			end
-
-			return {top = wibar.height}
-		end
-		overstep_edge = function()
-			return mouse.coords().y >= (screen.geometry.y + MISSING_PIXELS)
-		end
-	elseif settings.wibar_position == 'bottom' then
-		get_coord_hide = function()
-			return screen.geometry.height + wibar.height
-		end
-		get_coord_show = function()
-			return screen.geometry.height - (wibar.height)
-		end
-		get_struct_hide = function()
-			return {bottom = 0}
-		end
-		get_struct_show = function(invade)
-			if invade and not settings.wibar_invade_on_maximized then
-				return
-			end
-			return {bottom = wibar.height}
-		end
-		overstep_edge = function()
-			return mouse.coords().y <= (screen.geometry.height - MISSING_PIXELS)
-		end
-	end
-
 	wibar = wibox({
 		screen = screen,
 		type = 'dock',
@@ -182,11 +140,16 @@ function M.on_screen(screen)
 					require 'widgets.sound.applet'(screen),
 					require 'widgets.dollar.applet',
 					require 'widgets.keyboard-layout.applet',
-					require 'widgets.clock.applet'
+					require 'widgets.clock.applet',
+                    require('widgets.applet')(wibox.widget.textbox(''), function()
+                        uclient.minimize_all()
+                    end)
 				}
 			}
 		}
 	})
+
+    position = require('modules.wibar.position')(settings.wibar_position, screen, wibar)
 
 	if not settings.wibar_autohide then
 		wibar_show()
@@ -206,7 +169,7 @@ function M.on_screen(screen)
 		end
 	end)
 
-	require('display.hot-corners') {
+	require('modules.hot-edge') {
 		screen = screen,
 		position = settings.wibar_position or 'top',
 		callback = function()
@@ -223,7 +186,7 @@ local function wibar_reset_size()
 	--return
 	if wibar.height ~= height then
 		wibar.height = height
-		wibar_struct_show()
+		wibar_struct_show
 		wibar.shape = gshape.rectangle
 	end
 end
