@@ -18,17 +18,13 @@ return function(screen, volumen)
 		value = tonumber(volumen),
 		max_value = 100,
 		color = beautiful.progressbar_fg,
-		ticks = true,
-		ticks_gap = dpi(2),
-		ticks_size = dpi(5),
-		width = dpi(120),
 		height = dpi(5)
 	}
 
 	local timer = gtimer {
 		call_now = false,
 		autostart = false,
-		timeout = 1,
+		timeout = settings.volume_tooltip_time or 1.2,
 		callback = function()
 			tooltip.visible = false
 		end
@@ -52,10 +48,12 @@ return function(screen, volumen)
 		screen = screen,
 		ontop = true,
 		type = 'dock',
-		width = dpi(160),
-		height = dpi(160),
+		width = dpi(200),
+		height = dpi(40),
 		visible = false,
-		bg = beautiful.bg,
+		bg = beautiful.wibox_bg,
+        border_width = beautiful.border_width,
+        border_color = beautiful.border_focus,
 		shape = function(cr, w, h)
 			shape.rounded_rect(cr, w, h, dpi(settings.client_rounded_corners))
 		end,
@@ -63,25 +61,18 @@ return function(screen, volumen)
 			layout = wibox.container.margin,
 			margins = dpi(10),
 			{
-				layout = wibox.layout.fixed.vertical,
-				spacing = dpi(10),
+				layout = wibox.layout.fixed.horizontal,
+				spacing = dpi(5),
 				{
-					layout = wibox.container.place,
-					halign = true,
-					valign = true,
-					forced_height = dpi(120),
-					{
 						widget = wibox.widget.imagebox,
 						image = beautiful.icon_sound,
-						forced_width = dpi(80),
-						forced_height = dpi(80)
-					},
+                        valign = true,
 				},
-				nil,
 				slider
 			}
 		}
 	}
 
-	placement.centered(tooltip)
+	local place = (placement.centered + placement.top)
+    place(tooltip, {margins = dpi(20)})
 end
