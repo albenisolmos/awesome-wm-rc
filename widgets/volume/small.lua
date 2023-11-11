@@ -5,11 +5,10 @@ local beautiful = require('beautiful')
 local dpi = beautiful.xresources.apply_dpi
 
 local settings = require('settings')
-local utils = require('widgets.sound.utils')
 
 return function(s)
 	if settings.volumen_indicator then
-		require('widgets.sound.tooltip')(s)
+		require('widgets.volume.tooltip').init(s)
 	end
 
 	local widget = wibox.widget {
@@ -25,7 +24,7 @@ return function(s)
 				text = 'Sound',
 				font = beautiful.font_bold
 			},
-			require('widgets.sound.slider')
+			require('widgets.volume.slider')
 		},
 		{
 			widget = wibox.widget.separator,
@@ -41,10 +40,6 @@ return function(s)
 			}
 		}
 	}
-
-	utils.get_volume(function(volume)
-		awesome.emit_signal('sound::level', volume..'%', _, true)
-	end)
 
 	return widget
 end
